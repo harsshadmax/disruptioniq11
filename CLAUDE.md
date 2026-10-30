@@ -1,6 +1,6 @@
 # DisruptionIQ (SIH 2026 PS 1)
 
-Logistics disruption platform: detect delayed shipments, find affected orders, rank risk, recommend recovery, approve with separation of duties, simulate execution, audit everything. Read blueprint.md.
+Logistics disruption platform: detect delayed shipments, find affected orders, rank risk, recommend recovery, approve with separation of duties, simulate execution, audit everything. Read docs/blueprint.md.
 
 ## Non-negotiable rules
 1. AI never computes or changes numbers. Inventory, deadlines, risk scores, plan metrics and permissions are deterministic code in detect/, impact/, decide/, options/, act/, auth/. The ai/ module only gets computed JSON and returns text or a choice among given plan ids.

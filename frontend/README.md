@@ -1,36 +1,24 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DisruptionIQ web app
 
-## Getting Started
+Next.js 16 (App Router), React 19, TypeScript, Tailwind 4, shadcn/ui, TanStack Query. It displays what the API computes and sends the user's actions back; it makes no decisions of its own.
 
-First, run the development server:
+Setup is in the [root README](../README.md#run-it-locally). The API address is set with `NEXT_PUBLIC_API_URL` in `.env.local`.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Layout
+
+```
+app/
+├── (app)/      signed-in pages: dashboard, disruptions, approvals, simulate, audit, import, demo
+└── login/      sign-in page
+components/     dashboard panels, ripple map, plan controls, sidebar, shared UI
+lib/            API client, generated OpenAPI types, query hooks
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Commands
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run dev       # development server on http://localhost:3000
+npm run lint
+npm run build     # production build
+npm run gen:api   # regenerate lib/api/schema.d.ts (the API must be running)
+```
