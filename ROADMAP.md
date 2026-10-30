@@ -33,7 +33,7 @@ These use data the app already has, so every number is real and explainable.
 
 | # | Feature | Why it matters | Status |
 |---|---|---|---|
-| 1 | **What-if simulation lab.** Pick a supplier shutdown, a shipment delay, a demand surge or a stock cut (several at once). See orders at risk, units short and penalty exposure, baseline against simulated. Writes nothing to real data. | Answers the jury's first question: "what if this supplier stops?" | In preview |
+| 1 | **What-if simulation lab.** Pick a supplier shutdown, a shipment delay, a demand surge or a stock cut (several at once). See orders at risk, units short and penalty exposure, baseline against simulated. Writes nothing to real data. | Answers the jury's first question: "what if this supplier stops?" | Done |
 | 1b | Save, reopen and delete simulations; compare recovery strategies inside a simulation | Makes the lab reusable. Needs one new table and migration. | Planned |
 | 2 | **Incident replay.** Step through one disruption: detected, plans generated, proposed, approved, executed, with who and when. Built from the existing audit log. | Shows the full story in one screen | Planned |
 | 3 | **Resilience scorecard.** A 0 to 100 score from documented rules: supplier dependency, stock cover, supplier reliability, recovery rate. Per-category scores and tips. | One number a manager can track, fully explainable | Planned |
@@ -44,13 +44,13 @@ These use data the app already has, so every number is real and explainable.
 
 | # | Feature | Status |
 |---|---|---|
-| 6 | Keyboard shortcuts that navigate (`G` then a letter, `/` search, `?` help). A command palette (`Ctrl+K`) is still to do. | Shortcuts in preview; palette Planned |
-| 6b | Sidebar panel: live active-disruption and waiting counts, the three most urgent disruptions with links, a "Run detection now" action, and the shortcut list. Sidebar stays pinned while the page scrolls. | In preview |
+| 6 | Keyboard shortcuts that navigate (`G` then a letter, `/` search, `?` help). A command palette (`Ctrl+K`) is still to do. | Shortcuts Done; palette Planned |
+| 6b | Sidebar panel: live active-disruption and waiting counts, the three most urgent disruptions with links, a "Run detection now" action, and the shortcut list. Sidebar stays pinned while the page scrolls. | Done |
 | 7 | Global search across orders, shipments, suppliers and customers (today it searches disruptions only) | Planned |
 | 8 | Loading skeletons, empty states and retry screens on every page | Planned |
 | 9 | Report export (CSV now, PDF later) from disruptions, approvals and finance | Planned |
 | 10 | Dark mode (in the marine-blue palette) | Later |
-| 10b | **Marine-blue retheme.** Warm paper-grey background, ink text, marine blue brand (`#1F4E8C`), brick-red / amber / forest-green risk colours, flat surfaces, 6px corner base, no gradients or glow shadows, neutral icons instead of sparkles, tabular numerals. | In preview |
+| 10b | **Marine-blue retheme.** Warm paper-grey background, ink text, marine blue brand (`#1F4E8C`), brick-red / amber / forest-green risk colours, flat surfaces, 6px corner base, no gradients or glow shadows, neutral icons instead of sparkles, tabular numerals. | Done |
 | 11 | Saved filters and dashboard preferences per user | Later |
 | 12 | Accessibility pass (focus order, contrast, labels) and a tablet layout check | Planned |
 | 13 | "How to read this page" hints for first-time users and jury members | Planned |
@@ -85,6 +85,7 @@ a rewrite that risks the working demo. Live traffic, weather and GPS feeds: no p
 
 | Date | Change | State |
 |---|---|---|
-| 2026-10-30 | Roadmap created. What-if simulation lab (item 1) built on `feature/what-if-simulation`: engine, `/simulate` API, "What-if lab" page. Checked: 445 backend tests pass (39 new), type-check, lint and production build clean, run in the browser against the local app. Not yet merged or deployed. | In preview |
-| 2026-10-30 | Sidebar filled and pinned (item 6b): Today tiles, Needs attention, Run detection, working `G`-key shortcuts and a `?` help dialog. Checked in the browser (shortcuts, detection button, pinned scroll, tablet layout); type-check, lint and production build clean. Not yet merged or deployed. | In preview |
-| 2026-10-30 | Marine-blue retheme (item 10b) applied across all pages: about 370 hardcoded colours mapped to the new palette, corners and shadows flattened, sparkle icons replaced. Checked in the browser (dashboard, What-if lab, disruption detail, sign-in); type-check, lint and production build clean. Not yet merged or deployed. | In preview |
+| 2026-10-30 | Roadmap created. What-if simulation lab (item 1) built on `feature/what-if-simulation`: engine, `/simulate` API, "What-if lab" page. Checked: 445 backend tests pass (39 new), type-check, lint and production build clean, run in the browser against the local app. Merged and deployed in `c72e540`. | Done |
+| 2026-10-30 | Sidebar filled and pinned (item 6b): Today tiles, Needs attention, Run detection, working `G`-key shortcuts and a `?` help dialog. Checked in the browser (shortcuts, detection button, pinned scroll, tablet layout); type-check, lint and production build clean. Merged and deployed in `c72e540`. | Done |
+| 2026-10-30 | Marine-blue retheme (item 10b) applied across all pages: about 370 hardcoded colours mapped to the new palette, corners and shadows flattened, sparkle icons replaced. Checked in the browser (dashboard, What-if lab, disruption detail, sign-in); type-check, lint and production build clean. Merged and deployed in `c72e540`. | Done |
+| 2026-10-30 | Deployed `c72e540` (What-if lab, sidebar, shortcuts, marine-blue theme) to Vercel and Render. Checked live: Operator gets 403 on the lab, Analyst, Manager, Procurement and Admin get 200; a supplier-shutdown plus demand-surge run returns baseline against simulated figures; a bad scenario returns 422; disruptions, plans and audit rows are identical before and after a run. The sign-in page shows the new palette. Signed-in pages were not looked at on the live site. | Done |
