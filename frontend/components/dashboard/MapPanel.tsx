@@ -41,7 +41,7 @@ export function MapPanel({ d }: { d: Disruption }) {
       <div className="min-h-[360px] flex-1">
         {view === "map"
           ? <MapView warehouse={d.warehouse} supplier={d.supplier} shipment={d.shipment} />
-          : <RippleMap data={d.ripple} />}
+          : <RippleMap data={d.ripple} disruptionId={d.dbId} />}
       </div>
       <div className="mt-3 grid grid-cols-2 overflow-hidden rounded-lg border border-[#ddd9d0] text-xs sm:grid-cols-4">
         {cells.map((c, i) => (

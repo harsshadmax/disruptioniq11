@@ -105,7 +105,7 @@ function ripple(d: ApiDisruptionDetail, orders: ApiRankedOrder[], daysLate: numb
   chain.push({ id: "wh", label: `${d.warehouse} WH`, sub: `${unitsShort} units short`, band: unitsShort > 0 ? "high" : "low", col: 0, row: mid });
   chain.forEach((n, i) => nodes.push({ ...n, col: i }));
   shown.forEach((o, i) =>
-    nodes.push({ id: `o${i}`, label: `${o.order_ref} · ${cap(o.tier)}`, sub: `risk ${Math.round(o.score)}`, band: band(o.band), col: chain.length, row: i }),
+    nodes.push({ id: `o${i}`, label: `${o.order_ref} · ${cap(o.tier)}`, sub: `risk ${Math.round(o.score)}`, band: band(o.band), col: chain.length, row: i, orderId: o.order_id }),
   );
   const edges: [string, string][] = [];
   for (let i = 1; i < chain.length; i++) edges.push([chain[i - 1].id, chain[i].id]);

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, Loader2, MessageSquareText, PenLine } from "lucide-react";
@@ -22,7 +22,12 @@ export default function DisruptionPage() {
   const qc = useQueryClient();
   const d = useDisruption(id);
   const orders = useOrders(id);
-  const [why, setWhy] = useState<RankedOrder | null>(null);
+  const [picked, setPicked] = useState<RankedOrder | null>(null);
+  const [closed, setClosed] = useState(false);
+  // A link such as /disruptions/3?order=17 (from the dashboard's ripple map) opens that order's panel on arrival.
+  const linked = Number(useSearchParams().get("order"));
+  const why = picked ?? (closed ? null : orders.data?.find((o) => o.order_id === linked) ?? null);
+  const setWhy = (o: RankedOrder | null) => { setPicked(o); if (!o) setClosed(true); };
   const canAi = allowed(CAN.useAi, user?.role);
 
   const rewrite = useMutation({

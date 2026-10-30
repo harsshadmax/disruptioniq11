@@ -34,6 +34,7 @@ export interface ApiDisruptionDetail extends ApiDisruption {
 
 export interface ApiRankedOrder {
   rank: number;
+  order_id: number;
   order_ref: string;
   customer: string;
   tier: string;
@@ -96,6 +97,8 @@ export interface RippleNode {
   band: Band;
   col: number;
   row: number;
+  /** Set on order nodes: the order's database id, used to link to its detail. */
+  orderId?: number;
 }
 
 export interface TimelineStep {
