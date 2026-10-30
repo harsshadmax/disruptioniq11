@@ -1,0 +1,44 @@
+# Render Blueprint: the API and its Postgres. The web app goes to Vercel (see README, "Deploy").
+# Secrets marked `sync: false` are asked for once in the Render dashboard when the Blueprint is created.
+databases:
+  - name: disruptioniq-db
+    plan: free            # free Postgres expires after 30 days; use basic-256mb or larger to keep the data
+    databaseName: disruptioniq
+    user: disruptioniq
+
+services:
+  - type: web
+    name: disruptioniq-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    # Migrate, then seed (both are safe to run again), then serve. The synthetic data loads only into an empty
+    # database, so the `|| true` keeps a restart from failing once it is there.
+    startCommand: >-
+      alembic upgrade head
+      && python -m app.seed_users
+      && (python -m app.synth --seed 42 || true)
+      && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.14
+      - key: ENVIRONMENT
+        value: production        # refuses the default JWT and webhook secrets and the default demo password
+      - key: DATABASE_URL
+        fromDatabase:
+          name: disruptioniq-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: WEBHOOK_SECRET
+        generateValue: true      # give the same value to whatever signs carrier webhooks
+      - key: DEMO_PASSWORD
+        sync: false              # password of the five seeded demo users; choose your own
+      - key: CORS_ORIGINS
+        sync: false              # the Vercel URL of the web app, e.g. https://disruptioniq.vercel.app
+      - key: ANTHROPIC_API_KEY
+        sync: false              # optional; without it the AI layer answers from templates
+      - key: ANTHROPIC_MODEL
+        sync: false
