@@ -17,8 +17,8 @@ from app.models import ImportBatch, ImportRowError, User
 router = APIRouter(prefix="/import", tags=["import"])
 
 Entity = Literal["orders", "inventory", "shipments"]
-MAX_ROWS = 5000
-MAX_BYTES = 2 * 1024 * 1024
+MAX_ROWS = 10_000  # each order row costs a few lookups, so keep one request well inside the host's timeout
+MAX_BYTES = 10 * 1024 * 1024
 
 
 class ErrorOut(BaseModel):
@@ -92,7 +92,7 @@ def import_csv(
 ) -> ImportResult:
     data = file.file.read(MAX_BYTES + 1)
     if len(data) > MAX_BYTES:
-        raise HTTPException(413, "File larger than 2 MB")
+        raise HTTPException(413, f"File larger than {MAX_BYTES // (1024 * 1024)} MB")
     batch, errors = run_import(db, entity=entity, rows=_read_csv(data, entity), source="csv",
                                filename=(file.filename or "")[:200] or None, user_id=user.id)
     return _finish(db, user, batch, errors)

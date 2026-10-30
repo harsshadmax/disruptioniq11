@@ -70,7 +70,7 @@ export default function ImportPage() {
             </button>
             <button onClick={() => template(entity)} className={btnOutline}><Download className="size-3.5" /> Template</button>
           </div>
-          <p className="mt-3 text-[11px] text-[#8a8a8f]">Columns for {entity}: <code>{ENTITIES[entity].join(", ")}</code>. Maximum 2 MB. A timestamp without a timezone is read as UTC.</p>
+          <p className="mt-3 text-[11px] text-[#8a8a8f]">Columns for {entity}: <code>{ENTITIES[entity].join(", ")}</code>. Maximum 10 MB and 10,000 rows. A timestamp without a timezone is read as UTC.</p>
           {upload.error && <p role="alert" className="mt-3 rounded-lg bg-[#fdecee] px-3 py-2 text-xs text-[#9b1c2e]">{(upload.error as Error).message}</p>}
         </Panel>
       )}

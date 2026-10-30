@@ -194,3 +194,21 @@ def test_errors_are_persisted_and_audit_chain_stays_valid(client, loaded, db):
     batch_id = post_csv(client, loaded["ops_analyst"], text).json()["batch_id"]
     assert db.execute(select(func.count(ImportRowError.id)).where(ImportRowError.batch_id == batch_id)).scalar_one() == 1
     assert verify_chain(db)[0] is True
+
+
+def test_files_between_the_old_and_new_size_cap_are_accepted(client, loaded):
+    pad = "ORD-9300,Sundaram Auto Parts,2026-11-01,2026-11-10,SKU-002,Chennai,abc,0," + "x" * 400 + "\n"
+    text = HEADER + pad * 6000  # about 2.5 MB and 6,000 rows: over the old limits, bad rows only, so no database work
+    assert 2 * 1024 * 1024 < len(text.encode()) < 10 * 1024 * 1024
+    r = post_csv(client, loaded["ops_analyst"], text)
+    assert r.status_code == 200, r.text
+    assert r.json()["rows_failed"] >= 1
+
+
+def test_row_and_size_caps_still_hold(client, loaded):
+    too_many = HEADER + "ORD-9400,Sundaram Auto Parts,2026-11-01,2026-11-10,SKU-002,Chennai,abc,0\n" * 10_001
+    r = post_csv(client, loaded["ops_analyst"], too_many)
+    assert r.status_code == 413 and "10000" in r.json()["detail"]
+    too_big = HEADER + ("x" * 1000 + "\n") * 11_000  # over 10 MB
+    r = post_csv(client, loaded["ops_analyst"], too_big)
+    assert r.status_code == 413 and "10 MB" in r.json()["detail"]
