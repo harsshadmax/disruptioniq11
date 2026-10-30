@@ -1,4 +1,5 @@
 # DisruptionIQ: Build Blueprint (10-hour prototype)
+_Back to the [README](../README.md). This is the original 10-hour build plan; the app has grown since, see the [roadmap](roadmap.md)._
 
 **PS 1: DisruptionIQ - From Delivery Delays to Recovery Plans** (Logistics and Supply Chain Management)
 
@@ -239,7 +240,7 @@ Functions in `ai/`:
 ## 10. Claude Code setup
 
 ### 10.1 Working method
-- Keep this file as `blueprint.md` in the repo root; start each session with "read blueprint.md and CLAUDE.md".
+- keep this file as `docs/blueprint.md`; start each session with "read blueprint.md and CLAUDE.md".
 - **Plan mode first** for P3, P4 and P5, then approve and implement.
 - **Tests first** for rules, guards and the permission matrix.
 - One phase per branch, `/code-review` before merging, commit at the end of each phase.
