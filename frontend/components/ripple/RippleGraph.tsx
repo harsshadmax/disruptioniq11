@@ -8,10 +8,10 @@ import type { DisruptionDetail, RankedOrder } from "@/lib/api/types";
 
 type BandName = "high" | "medium" | "low" | "info";
 const COLOR: Record<BandName, { border: string; bg: string; text: string }> = {
-  high: { border: "#e5384f", bg: "#fdecee", text: "#9b1c2e" },
-  medium: { border: "#f59e0b", bg: "#fff6e5", text: "#8a5a00" },
-  low: { border: "#16a34a", bg: "#e8f6ec", text: "#14602f" },
-  info: { border: "#9ca3af", bg: "#f3f4f6", text: "#374151" },
+  high: { border: "#c8352b", bg: "#f8e4e1", text: "#8c2a22" },
+  medium: { border: "#c77700", bg: "#f8ecd3", text: "#8a5a00" },
+  low: { border: "#2e7d4f", bg: "#e3f0e7", text: "#1f5a3a" },
+  info: { border: "#9ca3af", bg: "#efece6", text: "#374151" },
 };
 const RANK: Record<BandName, number> = { info: 0, low: 1, medium: 2, high: 3 };
 
@@ -43,7 +43,7 @@ function RippleNodeView({ data }: NodeProps<Node<RippleData>>) {
       <Handle type="target" position={Position.Left} className="!size-1 !border-0 !bg-transparent" />
       {data.onPick ? (
         <button type="button" onClick={data.onPick} aria-label={data.hint} title={data.hint}
-          className="ripple-in nodrag nopan block cursor-pointer px-2 py-1.5 text-left transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e5384f]"
+          className="ripple-in nodrag nopan block cursor-pointer px-2 py-1.5 text-left transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c8352b]"
           style={style}>{body}</button>
       ) : (
         <div className="ripple-in px-2 py-1.5 text-left" style={style}>{body}</div>
@@ -111,7 +111,7 @@ function build(d: DisruptionDetail, orders: RankedOrder[], onPick: (o: RankedOrd
   const bandOf = new Map(nodes.map((n) => [n.id, n.data.band]));
   const flowEdges: Edge[] = edges.map(([a, b, s]) => {
     const hot = bandOf.get(b) === "high";
-    const color = hot ? "#e5384f" : "#b4b8be";
+    const color = hot ? "#c8352b" : "#b3aea4";
     return {
       id: `${a}>${b}`, source: a, target: b, type: "smoothstep", animated: hot,
       markerEnd: { type: MarkerType.ArrowClosed, color },
@@ -129,21 +129,21 @@ export function RippleGraph({ d, orders, onSelectOrder }: { d: DisruptionDetail;
 
   return (
     <div>
-      <div className="mb-2 flex flex-wrap items-center gap-3 text-[10px] text-[#6b6b70]">
+      <div className="mb-2 flex flex-wrap items-center gap-3 text-[10px] text-[#5c6670]">
         {(["high", "medium", "low"] as const).map((b) => (
           <span key={b} className="flex items-center gap-1"><span className="size-2 rounded-full" style={{ background: COLOR[b].border }} />{b[0].toUpperCase() + b.slice(1)} risk</span>
         ))}
         <span>Click an order to see why it is ranked where it is.</span>
         <button type="button" onClick={() => setRun((n) => n + 1)} className="ml-auto flex items-center gap-1 text-brand"><RotateCcw className="size-3" /> Replay</button>
       </div>
-      <div className="w-full overflow-hidden rounded-2xl bg-[#f4f6f4]" style={{ height: g.height }}>
+      <div className="w-full overflow-hidden rounded-2xl bg-[#f1efe9]" style={{ height: g.height }}>
         <ReactFlow key={`${d.id}-${run}`} nodes={g.nodes} edges={g.edges} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.1 }}
           nodesDraggable={false} nodesConnectable={false} elementsSelectable={false} zoomOnScroll={false} zoomOnPinch={false}
           zoomOnDoubleClick={false} panOnDrag={false} preventScrolling={false} proOptions={{ hideAttribution: true }}>
-          <Background gap={18} size={1} color="#dfe5df" />
+          <Background gap={18} size={1} color="#dedad2" />
         </ReactFlow>
       </div>
-      {g.hidden > 0 && <p className="mt-2 text-[10px] text-[#8a8a8f]">Showing the {MAX_ORDERS} highest-ranked orders; {g.hidden} more are in the table below.</p>}
+      {g.hidden > 0 && <p className="mt-2 text-[10px] text-[#6b7480]">Showing the {MAX_ORDERS} highest-ranked orders; {g.hidden} more are in the table below.</p>}
     </div>
   );
 }

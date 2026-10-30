@@ -612,6 +612,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/simulate/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Options */
+        get: operations["options_simulate_options_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/simulate/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Run */
+        post: operations["run_simulate_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -644,6 +678,20 @@ export interface components {
         Body_import_csv_import_csv_post: {
             /** File */
             file: string;
+        };
+        /** DemandSurgeIn */
+        DemandSurgeIn: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "demand_surge";
+            /** Percent */
+            percent: number;
+            /** Warehouse Id */
+            warehouse_id?: number | null;
+            /** Sku Id */
+            sku_id?: number | null;
         };
         /** DemoResult */
         DemoResult: {
@@ -852,6 +900,23 @@ export interface components {
             /** Password */
             password: string;
         };
+        /** MetricsOut */
+        MetricsOut: {
+            /** Orders At Risk */
+            orders_at_risk: number;
+            /** High Risk Orders */
+            high_risk_orders: number;
+            /** Units Short */
+            units_short: number;
+            /** Penalty Exposure */
+            penalty_exposure: number;
+            /** Value At Risk */
+            value_at_risk: number;
+            /** Customers Affected */
+            customers_affected: number;
+            /** Gold Customers Affected */
+            gold_customers_affected: number;
+        };
         /** ModifyBody */
         ModifyBody: {
             /**
@@ -863,6 +928,13 @@ export interface components {
             changes: {
                 [key: string]: unknown;
             };
+        };
+        /** NamedId */
+        NamedId: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
         };
         /** NewUser */
         NewUser: {
@@ -893,6 +965,34 @@ export interface components {
             created_at: string;
             /** Read */
             read: boolean;
+        };
+        /** OrderRow */
+        OrderRow: {
+            /** Order Ref */
+            order_ref: string;
+            /** Customer */
+            customer: string;
+            /** Tier */
+            tier: string;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /** Band */
+            band: string;
+            /** Score */
+            score: number;
+            /** Uncovered Qty */
+            uncovered_qty: number;
+            /** Order Qty */
+            order_qty: number;
+            /** Sla Penalty */
+            sla_penalty: number;
+            /** Warehouses */
+            warehouses: string[];
+            /** Baseline Band */
+            baseline_band: string | null;
         };
         /** PlanOut */
         PlanOut: {
@@ -1029,6 +1129,81 @@ export interface components {
          * @enum {string}
          */
         Role: "ops_analyst" | "supply_chain_manager" | "warehouse_operator" | "procurement_approver" | "administrator";
+        /** ShipmentDelayIn */
+        ShipmentDelayIn: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "shipment_delay";
+            /** Shipment Id */
+            shipment_id: number;
+            /** Days */
+            days: number;
+        };
+        /** ShipmentOption */
+        ShipmentOption: {
+            /** Id */
+            id: number;
+            /** Ref */
+            ref: string;
+            /** Supplier */
+            supplier: string;
+            /** Warehouse */
+            warehouse: string;
+            /**
+             * Current Eta
+             * Format: date-time
+             */
+            current_eta: string;
+            /** Status */
+            status: string;
+        };
+        /** SimulationIn */
+        SimulationIn: {
+            /** Events */
+            events: (components["schemas"]["SupplierShutdownIn"] | components["schemas"]["ShipmentDelayIn"] | components["schemas"]["DemandSurgeIn"] | components["schemas"]["StockReductionIn"])[];
+        };
+        /** SimulationOptions */
+        SimulationOptions: {
+            /** Suppliers */
+            suppliers: components["schemas"]["NamedId"][];
+            /** Warehouses */
+            warehouses: components["schemas"]["NamedId"][];
+            /** Skus */
+            skus: components["schemas"]["SkuOption"][];
+            /** Shipments */
+            shipments: components["schemas"]["ShipmentOption"][];
+        };
+        /** SimulationOut */
+        SimulationOut: {
+            /** Note */
+            note: string;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Events */
+            events: string[];
+            baseline: components["schemas"]["MetricsOut"];
+            simulated: components["schemas"]["MetricsOut"];
+            /** Newly At Risk Orders */
+            newly_at_risk_orders: number;
+            /** By Warehouse */
+            by_warehouse: components["schemas"]["WarehouseRow"][];
+            /** Orders */
+            orders: components["schemas"]["OrderRow"][];
+        };
+        /** SkuOption */
+        SkuOption: {
+            /** Id */
+            id: number;
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+        };
         /** StepOut */
         StepOut: {
             /** Seq */
@@ -1037,6 +1212,30 @@ export interface components {
             description: string;
             /** Status */
             status: string;
+        };
+        /** StockReductionIn */
+        StockReductionIn: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "stock_reduction";
+            /** Percent */
+            percent: number;
+            /** Warehouse Id */
+            warehouse_id?: number | null;
+            /** Sku Id */
+            sku_id?: number | null;
+        };
+        /** SupplierShutdownIn */
+        SupplierShutdownIn: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "supplier_shutdown";
+            /** Supplier Id */
+            supplier_id: number;
         };
         /** TextOut */
         TextOut: {
@@ -1080,6 +1279,23 @@ export interface components {
              * @description the plan version you last saw (optimistic lock)
              */
             version: number;
+        };
+        /** WarehouseRow */
+        WarehouseRow: {
+            /** Warehouse */
+            warehouse: string;
+            /** Baseline Orders */
+            baseline_orders: number;
+            /** Simulated Orders */
+            simulated_orders: number;
+            /** Baseline Units Short */
+            baseline_units_short: number;
+            /** Simulated Units Short */
+            simulated_units_short: number;
+            /** Baseline Penalty */
+            baseline_penalty: number;
+            /** Simulated Penalty */
+            simulated_penalty: number;
         };
         /** WebhookAck */
         WebhookAck: {
@@ -2135,6 +2351,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DemoResult"];
+                };
+            };
+        };
+    };
+    options_simulate_options_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationOptions"];
+                };
+            };
+        };
+    };
+    run_simulate_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SimulationIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

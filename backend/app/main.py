@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import ai, audit, auth, demo, disruptions, imports, notifications, plans, users, webhooks
+from app.routers import ai, audit, auth, demo, disruptions, imports, notifications, plans, simulate, users, webhooks
 
 app = FastAPI(title="DisruptionIQ API", version="0.1.0")
 
@@ -15,7 +15,7 @@ app.add_middleware(
 )
 
 # Single list of routers: main includes them and tests/test_route_permissions.py walks them.
-ROUTERS = [auth.router, users.router, audit.router, imports.router, webhooks.router, disruptions.router, plans.router, notifications.router, ai.router, demo.router]
+ROUTERS = [auth.router, users.router, audit.router, imports.router, webhooks.router, disruptions.router, plans.router, notifications.router, ai.router, demo.router, simulate.router]
 for _router in ROUTERS:
     app.include_router(_router)
 

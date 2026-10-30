@@ -9,6 +9,7 @@ PERMISSIONS: dict[str, frozenset[Role]] = {
     "import.run": frozenset({A, ADM}),
     "detect.run": frozenset({A, M, ADM}),
     "ai.use": frozenset({A, M, P}),  # advisory text only; cannot approve or execute anything
+    "simulate.run": frozenset({A, M, P, ADM}),  # read-only what-if; network-wide, so not for warehouse-scoped operators
     "plan.create": frozenset({A, M}),
     "plan.propose": frozenset({A}),
     "plan.modify": frozenset({A, M, P}),

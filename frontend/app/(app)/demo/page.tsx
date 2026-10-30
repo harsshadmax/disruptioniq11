@@ -68,17 +68,17 @@ export default function DemoPage() {
           const pending = run.isPending && run.variables === c.slug;
           return (
             <Panel key={c.slug} title={c.title} aside={target ? `Target: ${target}` : missing ? (c.needs === "event" ? "No event yet" : "No plan awaiting approval") : undefined}>
-              <p className="text-xs text-[#3a3a3f]">{c.what}</p>
-              <p className="mt-1 text-[11px] text-[#6b6b70]">Expected: {c.expect}</p>
-              {c.note && <p className="mt-1 text-[11px] font-medium text-[#d9741a]">{c.note}</p>}
+              <p className="text-xs text-[#2f3944]">{c.what}</p>
+              <p className="mt-1 text-[11px] text-[#5c6670]">Expected: {c.expect}</p>
+              {c.note && <p className="mt-1 text-[11px] font-medium text-[#c77700]">{c.note}</p>}
               <button onClick={() => run.mutate(c.slug)} disabled={run.isPending || missing} className={`${btnPrimary} mt-3`}>
                 {pending ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />} Run
               </button>
-              {missing && <p className="mt-2 text-[11px] text-[#8a8a8f]">{c.needs === "event" ? "Fire a scenario first (python -m app.scenarios s1)." : "Propose a plan first, as the Operations Analyst."}</p>}
+              {missing && <p className="mt-2 text-[11px] text-[#6b7480]">{c.needs === "event" ? "Fire a scenario first (python -m app.scenarios s1)." : "Propose a plan first, as the Operations Analyst."}</p>}
               {o && ("error" in o ? (
-                <p role="alert" className="mt-3 rounded-lg bg-[#fdecee] px-3 py-2 text-xs text-[#9b1c2e]">{o.error}</p>
+                <p role="alert" className="mt-3 rounded-lg bg-[#f8e4e1] px-3 py-2 text-xs text-[#8c2a22]">{o.error}</p>
               ) : (
-                <div className={`mt-3 rounded-lg px-3 py-2 text-xs ${o.guard_held ? "bg-[#e6f6ea] text-[#14602f]" : "bg-[#fff1e3] text-[#8a5a00]"}`}>
+                <div className={`mt-3 rounded-lg px-3 py-2 text-xs ${o.guard_held ? "bg-[#e3f0e7] text-[#1f5a3a]" : "bg-[#f8ecd3] text-[#8a5a00]"}`}>
                   <div className="flex items-center gap-1.5 font-semibold">
                     {o.guard_held ? <CheckCircle2 className="size-3.5" /> : <ShieldAlert className="size-3.5" />}{o.headline}
                   </div>
@@ -96,16 +96,16 @@ export default function DemoPage() {
       </div>
 
       <Panel title="Audit trail, live" aside="Newest first; updates as soon as a control finishes">
-        {!audit.data?.length ? <p className="text-xs text-[#8a8a8f]">Nothing yet.</p> : (
+        {!audit.data?.length ? <p className="text-xs text-[#6b7480]">Nothing yet.</p> : (
           <table className="w-full text-left text-xs">
-            <thead className="text-[10px] uppercase tracking-wide text-[#8a8a8f]"><tr>{["#", "Time", "Who", "Action", "Entity", "Reason"].map((h) => <th key={h} className="px-3 py-2 font-medium">{h}</th>)}</tr></thead>
+            <thead className="text-[10px] uppercase tracking-wide text-[#6b7480]"><tr>{["#", "Time", "Who", "Action", "Entity", "Reason"].map((h) => <th key={h} className="px-3 py-2 font-medium">{h}</th>)}</tr></thead>
             <tbody>{audit.data.slice(0, 12).map((r) => (
-              <tr key={r.id} className="border-t border-[#f0f0f2]">
-                <td className="px-3 py-2 text-[#8a8a8f]">{r.id}</td><td className="whitespace-nowrap px-3 py-2">{when(r.ts)}</td>
+              <tr key={r.id} className="border-t border-[#ebe8e1]">
+                <td className="px-3 py-2 text-[#6b7480]">{r.id}</td><td className="whitespace-nowrap px-3 py-2">{when(r.ts)}</td>
                 <td className="px-3 py-2">{r.role ? ROLE_LABEL[r.role] ?? r.role : "System"}</td>
-                <td className="px-3 py-2"><Pill tone={HOT.test(r.action) ? "bg-[#fdecee] text-[#e5384f]" : undefined}>{r.action}</Pill></td>
+                <td className="px-3 py-2"><Pill tone={HOT.test(r.action) ? "bg-[#f8e4e1] text-[#c8352b]" : undefined}>{r.action}</Pill></td>
                 <td className="px-3 py-2">{r.entity_type}{r.entity_id ? ` ${r.entity_id}` : ""}</td>
-                <td className="max-w-xs truncate px-3 py-2 text-[#55555a]">{r.reason ?? ""}</td>
+                <td className="max-w-xs truncate px-3 py-2 text-[#4a545e]">{r.reason ?? ""}</td>
               </tr>))}</tbody>
           </table>)}
       </Panel>

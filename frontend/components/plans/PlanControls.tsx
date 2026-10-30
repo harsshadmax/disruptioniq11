@@ -16,7 +16,7 @@ export interface PlanLike {
 }
 type Plan = PlanLike;
 type Kind = "propose" | "approve" | "reject" | "execute";
-const btn = "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold disabled:opacity-50";
+const btn = "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold disabled:opacity-50";
 
 const FIELD: Record<string, { key: string; label: string; hint: string }> = {
   reallocate: { key: "qty", label: "Units to move", hint: "Whole units. The source warehouse keeps its safety stock." },
@@ -64,17 +64,17 @@ export function PlanControls({ plan, role, inFlight }: { plan: Plan; role: strin
   } else if (plan.status === "PROPOSED") {
     main = plan.approver_roles.includes(role) ? (
       <div className="flex gap-2">
-        <button disabled={run.isPending} onClick={() => run.mutate("approve")} className={`${btn} bg-[#16a34a] text-white`}>
+        <button disabled={run.isPending} onClick={() => run.mutate("approve")} className={`${btn} bg-[#2e7d4f] text-white`}>
           {busy("approve") ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />} Approve
         </button>
-        <button disabled={run.isPending} onClick={() => { setRejecting(true); setError(null); }} className={`${btn} border border-[#e5384f] text-[#e5384f]`}>
+        <button disabled={run.isPending} onClick={() => { setRejecting(true); setError(null); }} className={`${btn} border border-[#c8352b] text-[#c8352b]`}>
           <X className="size-3" /> Reject
         </button>
       </div>
     ) : <Hint>Waiting for {rolesLabel(plan.approver_roles)}</Hint>;
   } else if (plan.status === "APPROVED") {
     main = plan.executor_roles.includes(role) ? (
-      <button disabled={run.isPending} onClick={() => run.mutate("execute")} className={`${btn} bg-[#1c1c1e] text-white`}>
+      <button disabled={run.isPending} onClick={() => run.mutate("execute")} className={`${btn} bg-[#1b2430] text-white`}>
         {busy("execute") ? <Loader2 className="size-3 animate-spin" /> : <Play className="size-3" />} Confirm execution
       </button>
     ) : <Hint>Waiting for {rolesLabel(plan.executor_roles)} to confirm</Hint>;
@@ -84,7 +84,7 @@ export function PlanControls({ plan, role, inFlight }: { plan: Plan; role: strin
     <div>
       <div className="flex flex-wrap items-center justify-end gap-2">
         {canModify && (
-          <button disabled={run.isPending} onClick={() => setModifying(true)} className={`${btn} border border-[#d9d9de] text-[#1c1c1e]`}>
+          <button disabled={run.isPending} onClick={() => setModifying(true)} className={`${btn} border border-[#cfcac0] text-[#1b2430]`}>
             <Pencil className="size-3" /> Modify
           </button>
         )}
@@ -93,11 +93,11 @@ export function PlanControls({ plan, role, inFlight }: { plan: Plan; role: strin
       {rejecting && (
         <div className="mt-2 flex gap-2">
           <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason for rejecting (required)" aria-label="Reason for rejecting"
-            className="h-8 flex-1 rounded-lg border border-[#e0e0e4] bg-[#f6f4fc] px-3 text-xs outline-none focus:border-brand" />
-          <button disabled={reason.trim().length < 3 || run.isPending} onClick={() => run.mutate("reject")} className={`${btn} bg-[#e5384f] text-white`}>Confirm reject</button>
+            className="h-8 flex-1 rounded-lg border border-[#d8d4cb] bg-[#f3f1ec] px-3 text-xs outline-none focus:border-brand" />
+          <button disabled={reason.trim().length < 3 || run.isPending} onClick={() => run.mutate("reject")} className={`${btn} bg-[#c8352b] text-white`}>Confirm reject</button>
         </div>
       )}
-      {error && <div role="alert" className="mt-2 rounded-lg bg-[#fdecee] px-3 py-2 text-[11px] text-[#9b1c2e]">{error}</div>}
+      {error && <div role="alert" className="mt-2 rounded-lg bg-[#f8e4e1] px-3 py-2 text-[11px] text-[#8c2a22]">{error}</div>}
       {modifying && <ModifyDialog plan={plan} onClose={() => setModifying(false)} />}
     </div>
   );
@@ -132,11 +132,11 @@ function ModifyDialog({ plan, onClose }: { plan: Plan; onClose: () => void }) {
         </DialogHeader>
         <label className="text-xs font-medium" htmlFor="mod-value">{f.label}</label>
         <input id="mod-value" value={value} onChange={(e) => setValue(e.target.value)} inputMode={f.key === "order_refs" ? "text" : "numeric"}
-          className="h-10 rounded-lg border bg-[#f6f4fc] px-3 text-sm outline-none focus:border-brand" />
-        <p className="text-[11px] text-[#8a8a8f]">{f.hint}</p>
-        {error && <div role="alert" className="rounded-lg bg-[#fdecee] px-3 py-2 text-xs text-[#9b1c2e]">{error}</div>}
+          className="h-10 rounded-lg border bg-[#f3f1ec] px-3 text-sm outline-none focus:border-brand" />
+        <p className="text-[11px] text-[#6b7480]">{f.hint}</p>
+        {error && <div role="alert" className="rounded-lg bg-[#f8e4e1] px-3 py-2 text-xs text-[#8c2a22]">{error}</div>}
         <DialogFooter>
-          <button onClick={onClose} className={`${btn} border border-[#d9d9de]`}>Cancel</button>
+          <button onClick={onClose} className={`${btn} border border-[#cfcac0]`}>Cancel</button>
           <button disabled={save.isPending || !value.trim()} onClick={() => save.mutate()} className={`${btn} bg-brand text-white`}>
             {save.isPending && <Loader2 className="size-3 animate-spin" />} Save new version
           </button>
@@ -147,5 +147,5 @@ function ModifyDialog({ plan, onClose }: { plan: Plan; onClose: () => void }) {
 }
 
 function Hint({ children }: { children: React.ReactNode }) {
-  return <span className="text-[10px] text-[#8a8a8f]">{children}</span>;
+  return <span className="text-[10px] text-[#6b7480]">{children}</span>;
 }

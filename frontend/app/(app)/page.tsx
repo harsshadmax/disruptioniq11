@@ -56,14 +56,14 @@ export default function DashboardPage() {
 
       {dash.isLoading && <div className="h-80 animate-pulse rounded-2xl bg-white" />}
       {dash.error && !data && (
-        <div role="alert" className="rounded-2xl border border-[#e6e8ec] bg-white p-6 text-sm">
-          <div className="font-semibold text-[#9b1c2e]">Could not load disruptions</div>
-          <div className="mt-1 text-[#6b6b70]">{(dash.error as Error).message}</div>
+        <div role="alert" className="rounded-2xl border border-[#ddd9d0] bg-white p-6 text-sm">
+          <div className="font-semibold text-[#8c2a22]">Could not load disruptions</div>
+          <div className="mt-1 text-[#5c6670]">{(dash.error as Error).message}</div>
           <button onClick={() => dash.refetch()} className="mt-3 rounded-lg bg-brand px-4 py-2 text-xs font-semibold text-white">Retry</button>
         </div>
       )}
       {data && !d && (
-        <div className="rounded-2xl border border-[#e6e8ec] bg-white p-8 text-center text-sm text-[#6b6b70]">
+        <div className="rounded-2xl border border-[#ddd9d0] bg-white p-8 text-center text-sm text-[#5c6670]">
           {q ? "No disruption matches that search." : "No active disruptions. Stock and shipments look healthy."}
         </div>
       )}
@@ -75,18 +75,18 @@ export default function DashboardPage() {
               <span className="sr-only">Select disruption</span>
               <select
                 value={d.id} onChange={(e) => setSelectedId(e.target.value)}
-                className="h-9 cursor-pointer appearance-none rounded-lg border border-[#e6e8ec] bg-white pl-3 pr-9 text-xs font-semibold text-[#1c1c1e] outline-none focus:border-brand"
+                className="h-9 cursor-pointer appearance-none rounded-lg border border-[#ddd9d0] bg-white pl-3 pr-9 text-xs font-semibold text-[#1b2430] outline-none focus:border-brand"
               >
                 {items.map((x) => <option key={x.id} value={x.id}>{x.ref} · {x.warehouse} · {x.type}</option>)}
               </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-3.5 -translate-y-1/2 text-[#8a8a8f]" />
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-3.5 -translate-y-1/2 text-[#6b7480]" />
             </label>
             <div className="ml-auto flex flex-wrap items-center gap-2">
-              <Link href="/approvals" className="flex h-9 items-center gap-2 rounded-lg bg-[#fde9d6] px-3 text-xs font-medium text-[#d9741a]">
+              <Link href="/approvals" className="flex h-9 items-center gap-2 rounded-lg bg-[#f8e3cc] px-3 text-xs font-medium text-[#c77700]">
                 Pending approvals ({data?.pendingApprovals ?? 0}) <ChevronRight className="size-3.5" />
               </Link>
               <button onClick={() => downloadReport(d)}
-                className="flex h-9 items-center gap-2 rounded-lg border border-[#e6e8ec] bg-white px-3 text-xs font-medium text-[#3a3a3f]">
+                className="flex h-9 items-center gap-2 rounded-lg border border-[#ddd9d0] bg-white px-3 text-xs font-medium text-[#2f3944]">
                 <Download className="size-3.5" /> Download report
               </button>
             </div>
@@ -116,7 +116,7 @@ export default function DashboardPage() {
                 onRefresh={() => ai.mutate(d.dbId)}
               />
               <PlanChart d={d} />
-              <Link href={`/disruptions/${d.dbId}`} className="rounded-2xl border border-[#e6e8ec] bg-white p-3 text-center text-xs font-semibold text-brand">
+              <Link href={`/disruptions/${d.dbId}`} className="rounded-2xl border border-[#ddd9d0] bg-white p-3 text-center text-xs font-semibold text-brand">
                 Open full disruption page
               </Link>
             </div>

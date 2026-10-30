@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Loader2, RefreshCw, Sparkles } from "lucide-react";
+import { ArrowLeft, Lightbulb, Loader2, RefreshCw } from "lucide-react";
 import { api } from "@/lib/api/client";
 import { allowed, CAN, type AiRecommendation } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth";
@@ -50,17 +50,17 @@ export default function PlansPage() {
             </button>)}
           {allowed(CAN.useAi, role) && (
             <button onClick={() => recommend.mutate()} disabled={recommend.isPending} className={btnPrimary}>
-              {recommend.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />} Ask AI to recommend
+              {recommend.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Lightbulb className="size-3.5" />} Ask AI to recommend
             </button>)}
         </>}
       />
-      {recommend.error && <p role="alert" className="text-xs text-[#e5384f]">{(recommend.error as Error).message}</p>}
-      {regenerate.error && <p role="alert" className="text-xs text-[#e5384f]">{(regenerate.error as Error).message}</p>}
+      {recommend.error && <p role="alert" className="text-xs text-[#c8352b]">{(recommend.error as Error).message}</p>}
+      {regenerate.error && <p role="alert" className="text-xs text-[#c8352b]">{(regenerate.error as Error).message}</p>}
       {aiPick && (
         <Panel title={`${aiPick.source === "ai" ? "AI" : "Rule-based"} recommendation: plan #${aiPick.plan_id}`}
           aside={aiPick.source === "ai" ? "Choice and numbers checked against the options below" : `Template (${aiPick.fallback_reason ?? "AI off"})`}>
           <p className="text-sm leading-relaxed">{aiPick.rationale}</p>
-          <p className="mt-2 text-[10px] text-[#8a8a8f]">Advice only. Someone with the right role still has to approve it.</p>
+          <p className="mt-2 text-[10px] text-[#6b7480]">Advice only. Someone with the right role still has to approve it.</p>
         </Panel>
       )}
       {list.length === 0 && <Empty>No plans yet for this disruption.</Empty>}
@@ -70,36 +70,36 @@ export default function PlansPage() {
           const m = p.metrics as Record<string, number>;
           const top = p.feasible && m.net_benefit === best;
           return (
-            <section key={p.id} className={`flex flex-col rounded-2xl bg-white p-4 border border-[#e6e8ec] ${p.recommended ? "ring-2 ring-brand-edge" : ""}`}>
+            <section key={p.id} className={`flex flex-col rounded-2xl bg-white p-4 border border-[#ddd9d0] ${p.recommended ? "ring-2 ring-brand-edge" : ""}`}>
               <div className="flex flex-wrap items-center gap-1.5">
-                <h2 className="text-sm font-bold text-[#1c1c1e]">{planTitle(p)}</h2>
+                <h2 className="text-sm font-bold text-[#1b2430]">{planTitle(p)}</h2>
                 {p.recommended && <Pill tone="bg-brand-soft text-brand">Recommended</Pill>}
-                {aiPick?.plan_id === p.id && <Pill tone="bg-[#f1e6ff] text-[#7a3fd1]">AI pick</Pill>}
+                {aiPick?.plan_id === p.id && <Pill tone="bg-[#e4ecf6] text-[#1f4e8c]">AI pick</Pill>}
               </div>
-              <div className="mt-1"><Pill tone={STATUS_TONE[p.status]}>{statusLabel(p.status)}</Pill>{p.overdue && <span className="ml-2 text-[10px] font-semibold text-[#e5384f]">overdue</span>}</div>
+              <div className="mt-1"><Pill tone={STATUS_TONE[p.status]}>{statusLabel(p.status)}</Pill>{p.overdue && <span className="ml-2 text-[10px] font-semibold text-[#c8352b]">overdue</span>}</div>
 
               {p.feasible ? (
                 <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
                   {[["Cost", inr(m.cost)], ["Orders saved", `${m.orders_saved}`], ["Still late", `${m.orders_still_late}`],
                     ["Penalty avoided", inr(m.penalty_avoided)], ["Net benefit", inr(m.net_benefit)], ["Arrival", dayOf(p.metrics.new_eta as string | undefined)]].map(([k, v]) => (
-                    <div key={k} className={`rounded-lg bg-[#f6f4fc] p-2 ${k === "Net benefit" && top ? "ring-1 ring-[#16a34a]" : ""}`}>
-                      <dt className="text-[10px] text-[#8a8a8f]">{k}</dt><dd className="font-semibold">{v}</dd></div>))}
+                    <div key={k} className={`rounded-lg bg-[#f3f1ec] p-2 ${k === "Net benefit" && top ? "ring-1 ring-[#2e7d4f]" : ""}`}>
+                      <dt className="text-[10px] text-[#6b7480]">{k}</dt><dd className="font-semibold">{v}</dd></div>))}
                 </dl>
               ) : (
-                <div className="mt-3 rounded-lg bg-[#fdecee] p-3 text-xs text-[#9b1c2e]">
+                <div className="mt-3 rounded-lg bg-[#f8e4e1] p-3 text-xs text-[#8c2a22]">
                   <div className="font-semibold">Not feasible</div>
                   <ul className="mt-1 list-disc pl-4">{p.reasons.map((r) => <li key={r}>{r}</li>)}</ul>
                 </div>
               )}
 
               {p.feasible && p.steps.length > 0 && (
-                <ol className="mt-3 space-y-1 text-[11px] text-[#55555a]">
-                  {p.steps.map((s) => <li key={s.seq} className="flex gap-2"><span className={s.status === "done" ? "text-[#16a34a]" : "text-[#9a9aa0]"}>{s.status === "done" ? "✓" : `${s.seq}.`}</span><span>{s.description}</span></li>)}
+                <ol className="mt-3 space-y-1 text-[11px] text-[#4a545e]">
+                  {p.steps.map((s) => <li key={s.seq} className="flex gap-2"><span className={s.status === "done" ? "text-[#2e7d4f]" : "text-[#7d8791]"}>{s.status === "done" ? "✓" : `${s.seq}.`}</span><span>{s.description}</span></li>)}
                 </ol>)}
-              {p.ai_rationale && <p className="mt-3 rounded-lg bg-[#f9f5ff] p-2 text-[11px] text-[#55555a]"><b>AI note:</b> {p.ai_rationale}</p>}
+              {p.ai_rationale && <p className="mt-3 rounded-lg bg-[#f1f5fa] p-2 text-[11px] text-[#4a545e]"><b>AI note:</b> {p.ai_rationale}</p>}
 
               <div className="mt-auto pt-3">
-                <p className="mb-2 text-[10px] text-[#8a8a8f]">Approved by {rolesLabel(p.approver_roles)}, confirmed by {rolesLabel(p.executor_roles)} · v{p.version}</p>
+                <p className="mb-2 text-[10px] text-[#6b7480]">Approved by {rolesLabel(p.approver_roles)}, confirmed by {rolesLabel(p.executor_roles)} · v{p.version}</p>
                 <PlanControls plan={p} role={role} inFlight={inFlight} />
               </div>
             </section>

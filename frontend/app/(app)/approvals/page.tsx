@@ -35,7 +35,7 @@ export default function ApprovalsPage() {
       <div className="flex gap-2" role="tablist">
         {TABS.map(([k, label]) => (
           <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}
-            className={`rounded-full px-4 py-2 text-xs font-medium ${tab === k ? "bg-[#1c1c1e] text-white" : "bg-white text-[#3a3a3f] border border-[#e6e8ec]"}`}>
+            className={`rounded-lg px-4 py-2 text-xs font-medium ${tab === k ? "bg-[#1b2430] text-white" : "bg-white text-[#2f3944] border border-[#ddd9d0]"}`}>
             {label} ({mine[k].length})
           </button>
         ))}
@@ -52,15 +52,15 @@ export default function ApprovalsPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm font-bold">Plan #{p.id}: {planTitle(p)}</span>
                 <Pill tone={STATUS_TONE[p.status]}>{statusLabel(p.status)}</Pill>
-                {p.overdue && <Pill tone="bg-[#fdecee] text-[#e5384f]">overdue</Pill>}
+                {p.overdue && <Pill tone="bg-[#f8e4e1] text-[#c8352b]">overdue</Pill>}
                 <Link href={`/disruptions/${p.disruption_id}/plans`} className="ml-auto text-xs text-brand">{p.warehouse} · {p.sku_code} · DIS-{p.disruption_id}</Link>
               </div>
               {p.feasible && (
-                <p className="mt-2 text-xs text-[#55555a]">
+                <p className="mt-2 text-xs text-[#4a545e]">
                   Cost <b>{inr(m.cost)}</b> · saves <b>{m.orders_saved}</b> orders · avoids <b>{inr(m.penalty_avoided)}</b> in penalties · net <b>{inr(m.net_benefit)}</b>
                 </p>)}
-              {p.ai_rationale && <p className="mt-2 text-[11px] text-[#6b6b70]">AI note: {p.ai_rationale}</p>}
-              <p className="mt-1 text-[10px] text-[#8a8a8f]">Last change {when(p.updated_at)} · version {p.version}</p>
+              {p.ai_rationale && <p className="mt-2 text-[11px] text-[#5c6670]">AI note: {p.ai_rationale}</p>}
+              <p className="mt-1 text-[10px] text-[#6b7480]">Last change {when(p.updated_at)} · version {p.version}</p>
               {!DONE.includes(p.status) && <div className="mt-3"><PlanControls plan={p} role={role} inFlight={inFlight(p)} /></div>}
             </Panel>
           );

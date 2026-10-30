@@ -18,6 +18,18 @@ export type DemoResult = S["DemoResult"];
 export type DemoTargets = S["DemoTargets"];
 export type DetectionResult = S["DetectionResult"];
 export type User = S["UserOut"];
+export type SimulationOptions = S["SimulationOptions"];
+export type SimulationResult = S["SimulationOut"];
+export type SimulationOrder = S["OrderRow"];
+export type SimulationWarehouse = S["WarehouseRow"];
+export type SimulationMetrics = S["MetricsOut"];
+
+/** One event of a what-if scenario, as the API expects it. */
+export type ScenarioEvent =
+  | { kind: "supplier_shutdown"; supplier_id: number }
+  | { kind: "shipment_delay"; shipment_id: number; days: number }
+  | { kind: "demand_surge"; percent: number; warehouse_id: number | null; sku_id: number | null }
+  | { kind: "stock_reduction"; percent: number; warehouse_id: number | null; sku_id: number | null };
 
 // Endpoints whose response is a plain dict on the backend, typed here by hand.
 export type LoginResponse = { access_token: string; token_type: string; user: User };
@@ -53,6 +65,7 @@ export const CAN = {
   generatePlans: ["ops_analyst", "supply_chain_manager"],
   readAudit: ["supply_chain_manager", "procurement_approver", "administrator"],
   useAi: ["ops_analyst", "supply_chain_manager", "procurement_approver"],
+  simulate: ["ops_analyst", "supply_chain_manager", "procurement_approver", "administrator"],
   demoControls: ["administrator"],
 } as const;
 

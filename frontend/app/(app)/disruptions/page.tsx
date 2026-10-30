@@ -21,7 +21,7 @@ export default function DisruptionsPage() {
       <PageTitle title="Disruptions" sub="Every delayed shipment or stock gap the rules found, ranked by risk."
         actions={
           <select value={state} onChange={(e) => setState(e.target.value as typeof state)} aria-label="Status filter"
-            className="h-9 rounded-full border border-[#d9d9de] bg-white px-4 text-xs font-medium">
+            className="h-9 rounded-lg border border-[#cfcac0] bg-white px-4 text-xs font-medium">
             <option value="active">Active</option><option value="resolved">Resolved</option><option value="all">All</option>
           </select>
         } />
@@ -32,20 +32,20 @@ export default function DisruptionsPage() {
         <Panel>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="text-[10px] uppercase tracking-wide text-[#8a8a8f]">
+              <thead className="text-[10px] uppercase tracking-wide text-[#6b7480]">
                 <tr>{["Ref", "Type", "Severity", "Where", "Shipment / supplier", "Orders at risk", "Penalty exposure", "Detected"].map((h) => <th key={h} className="px-3 py-2 font-medium">{h}</th>)}</tr>
               </thead>
               <tbody>
                 {rows.map((d) => (
-                  <tr key={d.id} className="border-t border-[#f0f0f2] hover:bg-[#fafafb]">
+                  <tr key={d.id} className="border-t border-[#ebe8e1] hover:bg-[#f8f6f2]">
                     <td className="px-3 py-3 font-semibold"><Link className="text-brand" href={`/disruptions/${d.id}`}>DIS-{d.id}</Link></td>
                     <td className="px-3 py-3">{TYPE[d.type] ?? d.type}</td>
-                    <td className="px-3 py-3"><Pill tone={BAND_TONE[d.severity]}>{d.severity}</Pill>{d.status !== "active" && <span className="ml-2 text-[10px] text-[#8a8a8f]">{d.status}</span>}</td>
+                    <td className="px-3 py-3"><Pill tone={BAND_TONE[d.severity]}>{d.severity}</Pill>{d.status !== "active" && <span className="ml-2 text-[10px] text-[#6b7480]">{d.status}</span>}</td>
                     <td className="px-3 py-3">{d.warehouse} · {d.sku_code}</td>
-                    <td className="px-3 py-3">{d.shipment_ref ?? "n/a"}<div className="text-[10px] text-[#8a8a8f]">{d.supplier ?? ""}</div></td>
-                    <td className="px-3 py-3">{d.orders_at_risk}{d.newly_at_risk > 0 && <span className="ml-1 text-[10px] text-[#e5384f]">({d.newly_at_risk} new)</span>}</td>
+                    <td className="px-3 py-3">{d.shipment_ref ?? "n/a"}<div className="text-[10px] text-[#6b7480]">{d.supplier ?? ""}</div></td>
+                    <td className="px-3 py-3">{d.orders_at_risk}{d.newly_at_risk > 0 && <span className="ml-1 text-[10px] text-[#c8352b]">({d.newly_at_risk} new)</span>}</td>
                     <td className="px-3 py-3">{inr(d.penalty_exposure)}</td>
-                    <td className="px-3 py-3 text-[#6b6b70]">{when(d.detected_at)} <span className="text-[#aaa]">({dayOf(d.detected_at)})</span></td>
+                    <td className="px-3 py-3 text-[#5c6670]">{when(d.detected_at)} <span className="text-[#aaa]">({dayOf(d.detected_at)})</span></td>
                   </tr>
                 ))}
               </tbody>

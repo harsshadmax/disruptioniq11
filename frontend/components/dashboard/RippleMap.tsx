@@ -6,10 +6,10 @@ import "@xyflow/react/dist/style.css";
 import type { Band, Disruption } from "@/lib/types";
 
 const STYLE: Record<Band, { border: string; bg: string; text: string }> = {
-  high: { border: "#e5384f", bg: "#fdecee", text: "#9b1c2e" },
-  medium: { border: "#f59e0b", bg: "#fff6e5", text: "#8a5a00" },
-  low: { border: "#16a34a", bg: "#e8f6ec", text: "#14602f" },
-  info: { border: "#6b7280", bg: "#f3f4f6", text: "#374151" },
+  high: { border: "#c8352b", bg: "#f8e4e1", text: "#8c2a22" },
+  medium: { border: "#c77700", bg: "#f8ecd3", text: "#8a5a00" },
+  low: { border: "#2e7d4f", bg: "#e3f0e7", text: "#1f5a3a" },
+  info: { border: "#6b7280", bg: "#efece6", text: "#374151" },
 };
 
 export function RippleMap({ data }: { data: Disruption["ripple"] }) {
@@ -42,8 +42,8 @@ export function RippleMap({ data }: { data: Disruption["ripple"] }) {
       const risky = bandOf.get(b) === "high";
       return {
         id: `${a}-${b}`, source: a, target: b, type: "smoothstep", animated: risky,
-        markerEnd: { type: MarkerType.ArrowClosed, color: risky ? "#e5384f" : "#9ca3af" },
-        style: { stroke: risky ? "#e5384f" : "#9ca3af", strokeWidth: 1.5 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: risky ? "#c8352b" : "#9ca3af" },
+        style: { stroke: risky ? "#c8352b" : "#9ca3af", strokeWidth: 1.5 },
       };
     });
     return { nodes: ns, edges: es };
@@ -67,7 +67,7 @@ export function RippleMap({ data }: { data: Disruption["ripple"] }) {
         preventScrolling={false}
         proOptions={{ hideAttribution: true }}
       >
-        <Background gap={18} size={1} color="#e1daf5" />
+        <Background gap={18} size={1} color="#d3dfee" />
       </ReactFlow>
     </div>
   );

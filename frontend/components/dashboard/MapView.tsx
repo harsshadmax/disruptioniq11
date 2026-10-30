@@ -5,8 +5,8 @@ import "leaflet/dist/leaflet.css";
 import { along, SUPPLIER_POS, WAREHOUSE_POS } from "./geo";
 
 const TILES = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-const RED = "#e5384f";
-const ORANGE = "#f08a24";
+const RED = "#c8352b";
+const ORANGE = "#c77700";
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 const label = (text: string) => `<div class="diq-pin-label">${esc(text)}</div>`;

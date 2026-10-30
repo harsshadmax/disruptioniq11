@@ -5,13 +5,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Brand: lavender (swap these six tokens to re-theme). Red stays reserved for risk, errors and blocked actions. */
-  --color-brand: #7a63d6;
-  --color-brand-deep: #5b45c4;
-  --color-brand-ink: #4a3a9c;
-  --color-brand-soft: #efeafd;
-  --color-brand-edge: #d3c9f5;
-  --color-brand-wash: #f8f6ff;
+  /* Brand: marine blue (swap these six tokens to re-theme). Red, amber and green stay reserved for risk bands. */
+  --color-brand: #1f4e8c;
+  --color-brand-deep: #173f73;
+  --color-brand-ink: #163a6b;
+  --color-brand-soft: #e4ecf6;
+  --color-brand-edge: #bfd0e6;
+  --color-brand-wash: #f1f5fa;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
@@ -62,7 +62,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.57 0.16 290);
+  --primary: oklch(0.43 0.1 255);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -71,15 +71,15 @@
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --border: oklch(0.89 0.012 85);
+  --input: oklch(0.89 0.012 85);
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --radius: 0.375rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -130,6 +130,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-variant-numeric: tabular-nums; /* figures in tables and KPI cards line up */
   }
   html {
     @apply font-sans;
@@ -160,12 +161,12 @@
 
 /* Map pins (components/dashboard/MapView.tsx) */
 .diq-pin { background: none; border: 0; }
-.diq-pin-label { position: absolute; left: 50%; top: 0; transform: translateX(-50%); white-space: nowrap; background: #fff; color: #1c1c1e; font: 600 10px/1 var(--font-sans, system-ui); padding: 5px 8px; border-radius: 8px; box-shadow: 0 2px 8px rgb(0 0 0 / 0.14); }
+.diq-pin-label { position: absolute; left: 50%; top: 0; transform: translateX(-50%); white-space: nowrap; background: #fff; color: #1b2430; font: 600 10px/1 var(--font-sans, system-ui); padding: 5px 8px; border-radius: 8px; box-shadow: 0 2px 8px rgb(0 0 0 / 0.14); }
 .diq-dot { position: absolute; left: 50%; bottom: 8px; width: 16px; height: 16px; margin-left: -8px; border-radius: 9999px; border: 3px solid #fff; box-shadow: 0 1px 6px rgb(0 0 0 / 0.3); }
 .diq-dot-lg { width: 22px; height: 22px; margin-left: -11px; display: flex; align-items: center; justify-content: center; }
 .diq-dot-lg b { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 8px solid #fff; transform: rotate(60deg); }
-.diq-hub { display: flex; align-items: center; justify-content: center; gap: 6px; height: 26px; white-space: nowrap; background: #1c1c1e; color: #fff; font: 600 10px/1 var(--font-sans, system-ui); border-radius: 9999px; padding: 0 10px; box-shadow: 0 2px 8px rgb(0 0 0 / 0.25); }
-.diq-hub i { width: 6px; height: 6px; border-radius: 9999px; background: #a99af0; }
-.diq-hub-hit { background: #7a63d6; }
+.diq-hub { display: flex; align-items: center; justify-content: center; gap: 6px; height: 26px; white-space: nowrap; background: #1b2430; color: #fff; font: 600 10px/1 var(--font-sans, system-ui); border-radius: 9999px; padding: 0 10px; box-shadow: 0 2px 8px rgb(0 0 0 / 0.25); }
+.diq-hub i { width: 6px; height: 6px; border-radius: 9999px; background: #8fb0dd; }
+.diq-hub-hit { background: #1f4e8c; }
 .diq-hub-hit i { background: #fff; }
 .diq-map .leaflet-control-attribution { font-size: 9px; }
