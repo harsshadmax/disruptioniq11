@@ -121,6 +121,7 @@ export interface Disruption {
   severity: Band;
   warehouse: string;
   supplier: string;
+  shipment: string | null;
   planStatus: string;
   etaChange: string;
   affectedOrders: number;

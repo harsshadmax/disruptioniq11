@@ -55,12 +55,12 @@ export function ErrorBox({ error, onRetry }: { error: unknown; onRetry?: () => v
     <div role="alert" className="rounded-2xl bg-white p-5 text-sm shadow-sm">
       <div className="font-semibold text-[#9b1c2e]">Something went wrong</div>
       <div className="mt-1 text-[#6b6b70]">{error instanceof Error ? error.message : "Unknown error"}</div>
-      {onRetry && <button onClick={onRetry} className="mt-3 rounded-full bg-[#e5384f] px-4 py-2 text-xs font-semibold text-white">Retry</button>}
+      {onRetry && <button onClick={onRetry} className="mt-3 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-white">Retry</button>}
     </div>
   );
 }
 
-export const btnPrimary = "flex items-center gap-2 rounded-full bg-[#e5384f] px-4 py-2 text-xs font-semibold text-white shadow-md shadow-[#e5384f]/25 disabled:opacity-50";
+export const btnPrimary = "flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-white shadow-md shadow-brand/25 disabled:opacity-50";
 export const btnOutline = "flex items-center gap-2 rounded-full border border-[#d9d9de] bg-white px-4 py-2 text-xs font-medium text-[#1c1c1e] disabled:opacity-40";
 
 export const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;

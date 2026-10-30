@@ -59,7 +59,7 @@ export default function DemoPage() {
   return (
     <>
       <PageTitle title="Demo controls" sub="Fire each guard on purpose. The system does the refusing; the result shows up in the audit log below."
-        actions={<Link href="/audit" className="text-xs font-medium text-[#e5384f]">Open the audit log</Link>} />
+        actions={<Link href="/audit" className="text-xs font-medium text-brand">Open the audit log</Link>} />
       <div className="grid gap-4 md:grid-cols-2">
         {CONTROLS.map((c) => {
           const target = c.needs === "event" ? t?.last_event : t?.proposed_plan;

@@ -57,7 +57,7 @@ export function PlanControls({ plan, role, inFlight }: { plan: Plan; role: strin
     main = allowed(CAN.propose, role) ? (
       <button disabled={inFlight || run.isPending} onClick={() => run.mutate("propose")}
         title={inFlight ? "Another plan for this disruption is already in progress" : "Send this plan for approval"}
-        className={`${btn} bg-[#e5384f] text-white`}>
+        className={`${btn} bg-brand text-white`}>
         {busy("propose") ? <Loader2 className="size-3 animate-spin" /> : <Send className="size-3" />} Propose
       </button>
     ) : <Hint>An analyst proposes</Hint>;
@@ -93,7 +93,7 @@ export function PlanControls({ plan, role, inFlight }: { plan: Plan; role: strin
       {rejecting && (
         <div className="mt-2 flex gap-2">
           <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason for rejecting (required)" aria-label="Reason for rejecting"
-            className="h-8 flex-1 rounded-lg border border-[#e0e0e4] bg-[#f6f6f7] px-3 text-xs outline-none focus:border-[#e5384f]" />
+            className="h-8 flex-1 rounded-lg border border-[#e0e0e4] bg-[#f6f4fc] px-3 text-xs outline-none focus:border-brand" />
           <button disabled={reason.trim().length < 3 || run.isPending} onClick={() => run.mutate("reject")} className={`${btn} bg-[#e5384f] text-white`}>Confirm reject</button>
         </div>
       )}
@@ -132,12 +132,12 @@ function ModifyDialog({ plan, onClose }: { plan: Plan; onClose: () => void }) {
         </DialogHeader>
         <label className="text-xs font-medium" htmlFor="mod-value">{f.label}</label>
         <input id="mod-value" value={value} onChange={(e) => setValue(e.target.value)} inputMode={f.key === "order_refs" ? "text" : "numeric"}
-          className="h-10 rounded-lg border bg-[#f6f6f7] px-3 text-sm outline-none focus:border-[#e5384f]" />
+          className="h-10 rounded-lg border bg-[#f6f4fc] px-3 text-sm outline-none focus:border-brand" />
         <p className="text-[11px] text-[#8a8a8f]">{f.hint}</p>
         {error && <div role="alert" className="rounded-lg bg-[#fdecee] px-3 py-2 text-xs text-[#9b1c2e]">{error}</div>}
         <DialogFooter>
           <button onClick={onClose} className={`${btn} border border-[#d9d9de]`}>Cancel</button>
-          <button disabled={save.isPending || !value.trim()} onClick={() => save.mutate()} className={`${btn} bg-[#e5384f] text-white`}>
+          <button disabled={save.isPending || !value.trim()} onClick={() => save.mutate()} className={`${btn} bg-brand text-white`}>
             {save.isPending && <Loader2 className="size-3 animate-spin" />} Save new version
           </button>
         </DialogFooter>

@@ -134,7 +134,7 @@ export function RippleGraph({ d, orders, onSelectOrder }: { d: DisruptionDetail;
           <span key={b} className="flex items-center gap-1"><span className="size-2 rounded-full" style={{ background: COLOR[b].border }} />{b[0].toUpperCase() + b.slice(1)} risk</span>
         ))}
         <span>Click an order to see why it is ranked where it is.</span>
-        <button type="button" onClick={() => setRun((n) => n + 1)} className="ml-auto flex items-center gap-1 text-[#e5384f]"><RotateCcw className="size-3" /> Replay</button>
+        <button type="button" onClick={() => setRun((n) => n + 1)} className="ml-auto flex items-center gap-1 text-brand"><RotateCcw className="size-3" /> Replay</button>
       </div>
       <div className="w-full overflow-hidden rounded-2xl bg-[#f4f6f4]" style={{ height: g.height }}>
         <ReactFlow key={`${d.id}-${run}`} nodes={g.nodes} edges={g.edges} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.1 }}

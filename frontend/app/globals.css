@@ -5,6 +5,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Brand: lavender (swap these six tokens to re-theme). Red stays reserved for risk, errors and blocked actions. */
+  --color-brand: #7a63d6;
+  --color-brand-deep: #5b45c4;
+  --color-brand-ink: #4a3a9c;
+  --color-brand-soft: #efeafd;
+  --color-brand-edge: #d3c9f5;
+  --color-brand-wash: #f8f6ff;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
@@ -55,7 +62,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --primary: oklch(0.57 0.16 290);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -150,3 +157,15 @@
 @media (prefers-reduced-motion: reduce) {
   .ripple-in, .ripple-edge { animation: none !important; }
 }
+
+/* Map pins (components/dashboard/MapView.tsx) */
+.diq-pin { background: none; border: 0; }
+.diq-pin-label { position: absolute; left: 50%; top: 0; transform: translateX(-50%); white-space: nowrap; background: #fff; color: #1c1c1e; font: 600 10px/1 var(--font-sans, system-ui); padding: 5px 8px; border-radius: 8px; box-shadow: 0 2px 8px rgb(0 0 0 / 0.14); }
+.diq-dot { position: absolute; left: 50%; bottom: 8px; width: 16px; height: 16px; margin-left: -8px; border-radius: 9999px; border: 3px solid #fff; box-shadow: 0 1px 6px rgb(0 0 0 / 0.3); }
+.diq-dot-lg { width: 22px; height: 22px; margin-left: -11px; display: flex; align-items: center; justify-content: center; }
+.diq-dot-lg b { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 8px solid #fff; transform: rotate(60deg); }
+.diq-hub { display: flex; align-items: center; justify-content: center; gap: 6px; height: 26px; white-space: nowrap; background: #1c1c1e; color: #fff; font: 600 10px/1 var(--font-sans, system-ui); border-radius: 9999px; padding: 0 10px; box-shadow: 0 2px 8px rgb(0 0 0 / 0.25); }
+.diq-hub i { width: 6px; height: 6px; border-radius: 9999px; background: #a99af0; }
+.diq-hub-hit { background: #7a63d6; }
+.diq-hub-hit i { background: #fff; }
+.diq-map .leaflet-control-attribution { font-size: 9px; }

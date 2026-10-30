@@ -2,19 +2,22 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, ChevronRight, Download, Loader2, Play } from "lucide-react";
-import { toast } from "sonner";
-import { aiSummary, loadDashboard, runDetection } from "@/lib/api";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { ChevronDown, ChevronRight, Download } from "lucide-react";
+import { aiSummary, loadDashboard } from "@/lib/api";
 import { allowed, CAN } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth";
 import type { Disruption } from "@/lib/types";
 import { useSearch } from "@/components/app/AppShell";
 import { Kpis } from "@/components/dashboard/Kpis";
-import { DisruptionList } from "@/components/dashboard/DisruptionList";
-import { ImpactStrip, RecoveryTimeline, RippleCard } from "@/components/dashboard/CenterPanels";
+import { RiskChart } from "@/components/dashboard/RiskChart";
+import { MapPanel } from "@/components/dashboard/MapPanel";
+import { ActiveList } from "@/components/dashboard/ActiveList";
+import { ImpactGrid } from "@/components/dashboard/ImpactGrid";
+import { BandDonut } from "@/components/dashboard/BandDonut";
+import { RecoveryTimeline } from "@/components/dashboard/CenterPanels";
 import { PlanActions } from "@/components/dashboard/PlanActions";
-import { AiCard, PlanChart, RiskBands } from "@/components/dashboard/RightPanels";
+import { AiCard, PlanChart } from "@/components/dashboard/RightPanels";
 
 function downloadReport(d: Disruption) {
   const head = ["rank", "order_ref", "customer", "tier", "due_date", "risk_score", "band", "uncovered_qty", "order_qty", "sla_penalty"];
@@ -29,7 +32,6 @@ function downloadReport(d: Disruption) {
 }
 
 export default function DashboardPage() {
-  const qc = useQueryClient();
   const { user } = useAuth();
   const { query } = useSearch();
   const role = user?.role ?? "";
@@ -37,16 +39,7 @@ export default function DashboardPage() {
   const data = dash.data;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [aiText, setAiText] = useState<Record<number, { text: string; source: "ai" | "template" }>>({});
-  const today = new Date().toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "long", year: "numeric" });
 
-  const detect = useMutation({
-    mutationFn: runDetection,
-    onSuccess: (r) => {
-      toast.success(`Detection finished: ${r.created.length} new, ${r.updated.length} updated, ${r.resolved.length} resolved.`);
-      qc.invalidateQueries();
-    },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Detection failed"),
-  });
   const ai = useMutation({
     mutationFn: aiSummary,
     onSuccess: (r, id) => setAiText((m) => ({ ...m, [id]: { text: r.text, source: r.source === "ai" ? "ai" : "template" } })),
@@ -59,72 +52,76 @@ export default function DashboardPage() {
 
   return (
     <>
-      <section className="flex flex-col gap-4 xl:flex-row xl:items-center">
-        <div className="shrink-0 xl:w-[210px]">
-          <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-[#1c1c1e]">Disruption Summary</h1>
-          <span className="mt-2 inline-block rounded-full bg-[#1c1c1e] px-3 py-1 text-[11px] text-white" suppressHydrationWarning>{today}</span>
-        </div>
-        {data ? <Kpis items={data.kpis} /> : <div className="h-[104px] flex-1 animate-pulse rounded-2xl bg-white" />}
-      </section>
-
-      <section className="flex flex-wrap items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm">
-        <CalendarDays className="size-4 text-[#8a8a8f]" />
-        <div className="mr-auto leading-tight">
-          <div className="text-sm font-semibold text-[#1c1c1e]">Disruption database</div>
-          <div className="text-[11px] text-[#8a8a8f]">Synthetic demo data, refreshed every 15 seconds</div>
-        </div>
-        <Link href="/approvals" className="flex items-center gap-2 rounded-full bg-[#fde9d6] px-4 py-2 text-xs font-medium text-[#d9741a]">
-          Pending approvals ({data?.pendingApprovals ?? 0}) <ChevronRight className="size-3.5" />
-        </Link>
-        <button onClick={() => d && downloadReport(d)} disabled={!d}
-          className="flex items-center gap-2 rounded-full border border-[#d9d9de] bg-white px-4 py-2 text-xs font-medium text-[#1c1c1e] disabled:opacity-40">
-          <Download className="size-3.5" /> Download report
-        </button>
-        {allowed(CAN.runDetection, role) && (
-          <button onClick={() => detect.mutate()} disabled={detect.isPending} title="Scan stock, orders and shipments for new disruptions"
-            className="flex items-center gap-2 rounded-full bg-[#e5384f] px-4 py-2 text-xs font-semibold text-white shadow-md shadow-[#e5384f]/25 disabled:opacity-50">
-            {detect.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />} Run detection
-          </button>
-        )}
-      </section>
+      {data ? <Kpis items={data.kpis} updatedAt={dash.dataUpdatedAt} /> : <div className="h-[132px] animate-pulse rounded-2xl bg-white" />}
 
       {dash.isLoading && <div className="h-80 animate-pulse rounded-2xl bg-white" />}
       {dash.error && !data && (
-        <div role="alert" className="rounded-2xl bg-white p-6 text-sm shadow-sm">
+        <div role="alert" className="rounded-2xl border border-[#e6e8ec] bg-white p-6 text-sm">
           <div className="font-semibold text-[#9b1c2e]">Could not load disruptions</div>
           <div className="mt-1 text-[#6b6b70]">{(dash.error as Error).message}</div>
-          <button onClick={() => dash.refetch()} className="mt-3 rounded-full bg-[#e5384f] px-4 py-2 text-xs font-semibold text-white">Retry</button>
+          <button onClick={() => dash.refetch()} className="mt-3 rounded-lg bg-brand px-4 py-2 text-xs font-semibold text-white">Retry</button>
         </div>
       )}
       {data && !d && (
-        <div className="rounded-2xl bg-white p-8 text-center text-sm text-[#6b6b70] shadow-sm">
+        <div className="rounded-2xl border border-[#e6e8ec] bg-white p-8 text-center text-sm text-[#6b6b70]">
           {q ? "No disruption matches that search." : "No active disruptions. Stock and shipments look healthy."}
         </div>
       )}
 
       {d && (
-        <section className="grid gap-4 lg:grid-cols-[250px_minmax(0,1fr)_290px]">
-          <DisruptionList items={items} selectedId={d.id} onSelect={setSelectedId} />
-          <div className="flex min-w-0 flex-col gap-4">
-            <RippleCard d={d} />
-            <ImpactStrip d={d} />
-            <PlanActions d={d} role={role} />
-            <RecoveryTimeline d={d} />
-          </div>
-          <div className="flex flex-col gap-4">
-            <AiCard
-              d={d} text={override?.text ?? d.aiSummary} source={override?.source ?? d.aiSource}
-              canRefresh={allowed(CAN.useAi, role)} busy={ai.isPending && ai.variables === d.dbId}
-              error={ai.isError && ai.variables === d.dbId ? (ai.error as Error).message : null}
-              onRefresh={() => ai.mutate(d.dbId)}
-            />
-            <RiskBands d={d} />
-            <PlanChart d={d} />
-            <Link href={`/disruptions/${d.dbId}`} className="rounded-2xl bg-white p-4 text-center text-xs font-semibold text-[#e5384f] shadow-sm">
-              Open full disruption page
-            </Link>
-          </div>
-        </section>
+        <>
+          <section className="flex flex-wrap items-center gap-2">
+            <label className="relative">
+              <span className="sr-only">Select disruption</span>
+              <select
+                value={d.id} onChange={(e) => setSelectedId(e.target.value)}
+                className="h-9 cursor-pointer appearance-none rounded-lg border border-[#e6e8ec] bg-white pl-3 pr-9 text-xs font-semibold text-[#1c1c1e] outline-none focus:border-brand"
+              >
+                {items.map((x) => <option key={x.id} value={x.id}>{x.ref} · {x.warehouse} · {x.type}</option>)}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-3.5 -translate-y-1/2 text-[#8a8a8f]" />
+            </label>
+            <div className="ml-auto flex flex-wrap items-center gap-2">
+              <Link href="/approvals" className="flex h-9 items-center gap-2 rounded-lg bg-[#fde9d6] px-3 text-xs font-medium text-[#d9741a]">
+                Pending approvals ({data?.pendingApprovals ?? 0}) <ChevronRight className="size-3.5" />
+              </Link>
+              <button onClick={() => downloadReport(d)}
+                className="flex h-9 items-center gap-2 rounded-lg border border-[#e6e8ec] bg-white px-3 text-xs font-medium text-[#3a3a3f]">
+                <Download className="size-3.5" /> Download report
+              </button>
+            </div>
+          </section>
+
+          <section className="grid gap-4 xl:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+            <RiskChart d={d} />
+            <MapPanel d={d} />
+          </section>
+
+          <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,0.9fr)]">
+            <ActiveList items={items} selectedId={d.id} onSelect={setSelectedId} />
+            <ImpactGrid d={d} />
+            <BandDonut d={d} />
+          </section>
+
+          <section className="grid gap-4 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+            <div className="flex min-w-0 flex-col gap-4">
+              <PlanActions d={d} role={role} />
+              <RecoveryTimeline d={d} />
+            </div>
+            <div className="flex min-w-0 flex-col gap-4">
+              <AiCard
+                d={d} text={override?.text ?? d.aiSummary} source={override?.source ?? d.aiSource}
+                canRefresh={allowed(CAN.useAi, role)} busy={ai.isPending && ai.variables === d.dbId}
+                error={ai.isError && ai.variables === d.dbId ? (ai.error as Error).message : null}
+                onRefresh={() => ai.mutate(d.dbId)}
+              />
+              <PlanChart d={d} />
+              <Link href={`/disruptions/${d.dbId}`} className="rounded-2xl border border-[#e6e8ec] bg-white p-3 text-center text-xs font-semibold text-brand">
+                Open full disruption page
+              </Link>
+            </div>
+          </section>
+        </>
       )}
     </>
   );

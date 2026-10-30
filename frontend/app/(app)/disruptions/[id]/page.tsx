@@ -48,7 +48,7 @@ export default function DisruptionPage() {
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
         <Panel title="Summary" aside={canAi && (
-          <button onClick={() => rewrite.mutate()} disabled={rewrite.isPending} className="flex items-center gap-1 text-[#e5384f] disabled:opacity-50">
+          <button onClick={() => rewrite.mutate()} disabled={rewrite.isPending} className="flex items-center gap-1 text-brand disabled:opacity-50">
             {rewrite.isPending ? <Loader2 className="size-3 animate-spin" /> : <Sparkles className="size-3" />} Rewrite with AI
           </button>)}>
           <p className="text-sm leading-relaxed text-[#3a3a3f]">{x.summary}</p>
@@ -58,7 +58,7 @@ export default function DisruptionPage() {
         <Panel title="At a glance">
           <dl className="grid grid-cols-3 gap-2 text-center">
             {[["At risk", x.orders_at_risk], ["Newly at risk", x.newly_at_risk], ["Penalty", inr(x.penalty_exposure)]].map(([k, v]) => (
-              <div key={k as string} className="rounded-xl bg-[#f6f6f7] p-2"><dt className="text-[10px] text-[#8a8a8f]">{k}</dt><dd className="text-base font-bold">{v}</dd></div>
+              <div key={k as string} className="rounded-xl bg-[#f6f4fc] p-2"><dt className="text-[10px] text-[#8a8a8f]">{k}</dt><dd className="text-base font-bold">{v}</dd></div>
             ))}
           </dl>
           <p className="mt-3 text-[11px] text-[#6b6b70]">Fully covered orders: <b>{x.impact.covered_before}</b> promised, <b>{x.impact.covered_after}</b> now.</p>
@@ -67,7 +67,7 @@ export default function DisruptionPage() {
 
       <Panel title="Ripple map" aside="From the delayed shipment to the customers waiting on it">
         {orders.data ? <RippleGraph d={x} orders={orders.data} onSelectOrder={setWhy} />
-          : <div className="h-64 animate-pulse rounded-xl bg-[#f6f6f7]" />}
+          : <div className="h-64 animate-pulse rounded-xl bg-[#f6f4fc]" />}
       </Panel>
 
       <Panel title="Before vs after" aside="Promised plan against the current world, earliest due date served first">
@@ -90,7 +90,7 @@ export default function DisruptionPage() {
       </Panel>
 
       <Panel title="Ranked orders at risk" aside="Score = weighted factors, higher is worse">
-        {orders.isLoading && <div className="h-32 animate-pulse rounded-xl bg-[#f6f6f7]" />}
+        {orders.isLoading && <div className="h-32 animate-pulse rounded-xl bg-[#f6f4fc]" />}
         {orders.data?.length === 0 && <p className="text-xs text-[#8a8a8f]">No order is at risk.</p>}
         {!!orders.data?.length && (
           <div className="overflow-x-auto">
@@ -140,7 +140,7 @@ function WhyDrawer({ order, disruptionId, canAi, onClose }: { order: RankedOrder
                   <p className="mt-1 text-[11px] text-[#6b6b70]">{f.text}</p>
                 </div>
               ))}
-              <dl className="grid grid-cols-2 gap-2 rounded-xl bg-[#f6f6f7] p-3 text-xs">
+              <dl className="grid grid-cols-2 gap-2 rounded-xl bg-[#f6f4fc] p-3 text-xs">
                 <div><dt className="text-[10px] text-[#8a8a8f]">Covered before</dt><dd className="font-semibold">{order.status_before}</dd></div>
                 <div><dt className="text-[10px] text-[#8a8a8f]">Covered now</dt><dd className="font-semibold">{order.status_after}</dd></div>
                 <div><dt className="text-[10px] text-[#8a8a8f]">Earliest fulfilment</dt><dd className="font-semibold">{order.earliest_fulfil ? dayOf(order.earliest_fulfil) : "none in sight"}</dd></div>

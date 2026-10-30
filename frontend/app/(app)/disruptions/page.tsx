@@ -38,7 +38,7 @@ export default function DisruptionsPage() {
               <tbody>
                 {rows.map((d) => (
                   <tr key={d.id} className="border-t border-[#f0f0f2] hover:bg-[#fafafb]">
-                    <td className="px-3 py-3 font-semibold"><Link className="text-[#e5384f]" href={`/disruptions/${d.id}`}>DIS-{d.id}</Link></td>
+                    <td className="px-3 py-3 font-semibold"><Link className="text-brand" href={`/disruptions/${d.id}`}>DIS-{d.id}</Link></td>
                     <td className="px-3 py-3">{TYPE[d.type] ?? d.type}</td>
                     <td className="px-3 py-3"><Pill tone={BAND_TONE[d.severity]}>{d.severity}</Pill>{d.status !== "active" && <span className="ml-2 text-[10px] text-[#8a8a8f]">{d.status}</span>}</td>
                     <td className="px-3 py-3">{d.warehouse} · {d.sku_code}</td>

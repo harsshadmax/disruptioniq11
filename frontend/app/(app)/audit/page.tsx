@@ -44,7 +44,7 @@ export default function AuditPage() {
         <select value={entity} onChange={(e) => setEntity(e.target.value)} aria-label="Entity filter" className="h-9 rounded-full border border-[#d9d9de] bg-white px-4 text-xs">
           <option value="">All entities</option>{entities.map((a) => <option key={a}>{a}</option>)}</select>
         <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Search reason, id or details" aria-label="Search the log"
-          className="h-9 min-w-56 flex-1 rounded-full border border-[#d9d9de] bg-white px-4 text-xs outline-none focus:border-[#e5384f]" />
+          className="h-9 min-w-56 flex-1 rounded-full border border-[#d9d9de] bg-white px-4 text-xs outline-none focus:border-brand" />
       </div>
       {rows.isLoading && <div className="h-64 animate-pulse rounded-2xl bg-white" />}
       {rows.data && shown.length === 0 && <Empty>No entries match.</Empty>}

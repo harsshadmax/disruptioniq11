@@ -41,7 +41,7 @@ Built for **Smart India Hackathon 2026, Problem Statement 1 (Logistics and Suppl
 | **Simulate execution** | Only after approval and an explicit confirmation, re-checking preconditions in one transaction. Nothing touches a real carrier or ERP. |
 | **Notify** | In-app notifications to the proposer and approver on every transition. |
 | **Audit** | Append-only, hash-chained log of every state change, import, webhook outcome and blocked action, with a chain check page. |
-| **Dashboard** | Active disruptions, orders at risk, pending approvals, recovery progress, ranked orders, a ripple map of how one delay spreads, and plan comparison. |
+| **Dashboard** | Active disruptions, orders at risk, pending approvals, recovery progress, ranked orders, a street map of the supplier-to-warehouse route with the late shipment on it (OpenStreetMap tiles, internet needed; a Ripple tab shows how one delay spreads to customers), an AI recommendation card, and plan comparison. |
 
 ## How a disruption flows through the system
 
@@ -269,7 +269,7 @@ disruptioniq/
 | Backend | FastAPI, Pydantic v2, SQLAlchemy 2, Alembic, PyJWT, httpx |
 | Database | PostgreSQL 16 |
 | Frontend | Next.js 16 (App Router), React 19, TypeScript, Tailwind 4, shadcn/ui, TanStack Query 5 |
-| Visuals | React Flow (ripple map), Recharts (charts) |
+| Visuals | Leaflet (route map), React Flow (ripple map), Recharts (charts) |
 | AI (optional) | Anthropic API via a single module |
 | Tests | pytest |
 

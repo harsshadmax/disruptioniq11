@@ -18,17 +18,17 @@ const STATUS_TONE: Record<string, string> = {
 export function PlanActions({ d, role }: { d: Disruption; role: string }) {
   const inFlight = d.planList.some((p) => IN_PROGRESS.includes(p.status));
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm">
+    <div className="rounded-2xl bg-white p-5 border border-[#e6e8ec]">
       <div className="mb-3 flex items-baseline justify-between">
-        <div className="text-sm font-bold text-[#1c1c1e]">Recovery plans</div>
+        <div className="text-base font-bold text-[#1c1c1e]">Recovery plans</div>
         <div className="text-[10px] text-[#8a8a8f]">Rules build and rank the options. People approve.</div>
       </div>
       <ul className="space-y-2">
         {d.planList.map((p) => (
-          <li key={p.id} className={`rounded-xl border p-3 ${p.recommended ? "border-[#f2c9ce] bg-[#fff8f9]" : "border-[#eeeef0]"}`}>
+          <li key={p.id} className={`rounded-xl border p-3 ${p.recommended ? "border-brand-edge bg-brand-wash" : "border-[#eeeef0]"}`}>
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs font-semibold text-[#1c1c1e]">{planTitle(p)}</span>
-              {p.recommended && <span className="rounded-md bg-[#fdecee] px-1.5 py-0.5 text-[9px] font-semibold text-[#e5384f]">Recommended</span>}
+              {p.recommended && <span className="rounded-md bg-brand-soft px-1.5 py-0.5 text-[9px] font-semibold text-brand">Recommended</span>}
               <span className={`ml-auto rounded-md px-2 py-0.5 text-[10px] font-semibold ${STATUS_TONE[p.status] ?? STATUS_TONE.DRAFT}`}>{statusLabel(p.status)}</span>
             </div>
             {p.feasible ? (

@@ -35,10 +35,10 @@ export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#e6e6e9] p-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#e9e6f4] p-4">
       <form onSubmit={submit} className="w-full max-w-sm rounded-[28px] bg-white p-8 shadow-xl shadow-black/5">
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex size-11 items-center justify-center rounded-full bg-[#e5384f] text-lg font-bold text-white">D</div>
+          <div className="flex size-11 items-center justify-center rounded-full bg-brand text-lg font-bold text-white">D</div>
           <div className="leading-tight">
             <div className="text-lg font-extrabold text-[#1c1c1e]">DisruptionIQ</div>
             <div className="text-xs text-[#8a8a8f]">From delivery delays to recovery plans</div>
@@ -48,19 +48,19 @@ export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
         <label className="mb-1 block text-xs font-medium text-[#3a3a3f]" htmlFor="email">Email</label>
         <input
           id="email" type="email" required autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)}
-          className="mb-3 h-11 w-full rounded-xl border border-[#e0e0e4] bg-[#f6f6f7] px-4 text-sm outline-none focus:border-[#e5384f]"
+          className="mb-3 h-11 w-full rounded-xl border border-[#e0e0e4] bg-[#f6f4fc] px-4 text-sm outline-none focus:border-brand"
         />
         <label className="mb-1 block text-xs font-medium text-[#3a3a3f]" htmlFor="password">Password</label>
         <input
           id="password" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)}
-          className="mb-4 h-11 w-full rounded-xl border border-[#e0e0e4] bg-[#f6f6f7] px-4 text-sm outline-none focus:border-[#e5384f]"
+          className="mb-4 h-11 w-full rounded-xl border border-[#e0e0e4] bg-[#f6f4fc] px-4 text-sm outline-none focus:border-brand"
         />
 
         {error && <div className="mb-3 rounded-xl bg-[#fdecee] px-3 py-2 text-xs text-[#9b1c2e]">{error}</div>}
 
         <button
           type="submit" disabled={busy}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[#e5384f] text-sm font-semibold text-white shadow-md shadow-[#e5384f]/25 disabled:opacity-60"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand text-sm font-semibold text-white shadow-md shadow-brand/25 disabled:opacity-60"
         >
           {busy && <Loader2 className="size-4 animate-spin" />} Sign in
         </button>
@@ -72,7 +72,7 @@ export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
               <button
                 key={u.email} type="button"
                 onClick={() => { setEmail(u.email); setPassword(process.env.NEXT_PUBLIC_DEMO_PASSWORD ?? ""); }}
-                className="rounded-full border border-[#e0e0e4] px-3 py-1 text-[11px] font-medium text-[#3a3a3f] hover:border-[#e5384f] hover:text-[#e5384f]"
+                className="rounded-full border border-[#e0e0e4] px-3 py-1 text-[11px] font-medium text-[#3a3a3f] hover:border-brand hover:text-brand"
               >
                 {u.label}
               </button>

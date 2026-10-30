@@ -136,6 +136,7 @@ function adapt(d: ApiDisruptionDetail, orders: ApiRankedOrder[], plans: ApiPlan[
     severity: band(d.severity),
     warehouse: d.warehouse,
     supplier: d.supplier ?? "Unknown supplier",
+    shipment: d.shipment_ref,
     planStatus: lead ? (STATUS_LABEL[lead.status] ?? lead.status) : "No plan",
     etaChange: d.promised_eta && d.current_eta ? `ETA ${day(d.promised_eta)} → ${day(d.current_eta)}` : `${d.sku_code} short`,
     affectedOrders: d.orders_at_risk,

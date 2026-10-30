@@ -42,7 +42,7 @@ export default function PlansPage() {
     <>
       <PageTitle
         title="Recovery plans"
-        sub={<Link href={`/disruptions/${id}`} className="inline-flex items-center gap-1 text-[#e5384f]"><ArrowLeft className="size-3" /> DIS-{id} · {d.data.warehouse} · {d.data.sku_code}</Link>}
+        sub={<Link href={`/disruptions/${id}`} className="inline-flex items-center gap-1 text-brand"><ArrowLeft className="size-3" /> DIS-{id} · {d.data.warehouse} · {d.data.sku_code}</Link>}
         actions={<>
           {allowed(CAN.generatePlans, role) && d.data.status === "active" && (
             <button onClick={() => regenerate.mutate()} disabled={regenerate.isPending || inFlight} title={inFlight ? "A plan is in progress" : "Recompute the draft options"} className={btnOutline}>
@@ -70,10 +70,10 @@ export default function PlansPage() {
           const m = p.metrics as Record<string, number>;
           const top = p.feasible && m.net_benefit === best;
           return (
-            <section key={p.id} className={`flex flex-col rounded-2xl bg-white p-4 shadow-sm ${p.recommended ? "ring-2 ring-[#f2c9ce]" : ""}`}>
+            <section key={p.id} className={`flex flex-col rounded-2xl bg-white p-4 border border-[#e6e8ec] ${p.recommended ? "ring-2 ring-brand-edge" : ""}`}>
               <div className="flex flex-wrap items-center gap-1.5">
                 <h2 className="text-sm font-bold text-[#1c1c1e]">{planTitle(p)}</h2>
-                {p.recommended && <Pill tone="bg-[#fdecee] text-[#e5384f]">Recommended</Pill>}
+                {p.recommended && <Pill tone="bg-brand-soft text-brand">Recommended</Pill>}
                 {aiPick?.plan_id === p.id && <Pill tone="bg-[#f1e6ff] text-[#7a3fd1]">AI pick</Pill>}
               </div>
               <div className="mt-1"><Pill tone={STATUS_TONE[p.status]}>{statusLabel(p.status)}</Pill>{p.overdue && <span className="ml-2 text-[10px] font-semibold text-[#e5384f]">overdue</span>}</div>
@@ -82,7 +82,7 @@ export default function PlansPage() {
                 <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
                   {[["Cost", inr(m.cost)], ["Orders saved", `${m.orders_saved}`], ["Still late", `${m.orders_still_late}`],
                     ["Penalty avoided", inr(m.penalty_avoided)], ["Net benefit", inr(m.net_benefit)], ["Arrival", dayOf(p.metrics.new_eta as string | undefined)]].map(([k, v]) => (
-                    <div key={k} className={`rounded-lg bg-[#f6f6f7] p-2 ${k === "Net benefit" && top ? "ring-1 ring-[#16a34a]" : ""}`}>
+                    <div key={k} className={`rounded-lg bg-[#f6f4fc] p-2 ${k === "Net benefit" && top ? "ring-1 ring-[#16a34a]" : ""}`}>
                       <dt className="text-[10px] text-[#8a8a8f]">{k}</dt><dd className="font-semibold">{v}</dd></div>))}
                 </dl>
               ) : (

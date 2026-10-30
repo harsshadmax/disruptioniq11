@@ -35,7 +35,7 @@ export default function ApprovalsPage() {
       <div className="flex gap-2" role="tablist">
         {TABS.map(([k, label]) => (
           <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}
-            className={`rounded-full px-4 py-2 text-xs font-medium ${tab === k ? "bg-[#1c1c1e] text-white" : "bg-white text-[#3a3a3f] shadow-sm"}`}>
+            className={`rounded-full px-4 py-2 text-xs font-medium ${tab === k ? "bg-[#1c1c1e] text-white" : "bg-white text-[#3a3a3f] border border-[#e6e8ec]"}`}>
             {label} ({mine[k].length})
           </button>
         ))}
@@ -53,7 +53,7 @@ export default function ApprovalsPage() {
                 <span className="text-sm font-bold">Plan #{p.id}: {planTitle(p)}</span>
                 <Pill tone={STATUS_TONE[p.status]}>{statusLabel(p.status)}</Pill>
                 {p.overdue && <Pill tone="bg-[#fdecee] text-[#e5384f]">overdue</Pill>}
-                <Link href={`/disruptions/${p.disruption_id}/plans`} className="ml-auto text-xs text-[#e5384f]">{p.warehouse} · {p.sku_code} · DIS-{p.disruption_id}</Link>
+                <Link href={`/disruptions/${p.disruption_id}/plans`} className="ml-auto text-xs text-brand">{p.warehouse} · {p.sku_code} · DIS-{p.disruption_id}</Link>
               </div>
               {p.feasible && (
                 <p className="mt-2 text-xs text-[#55555a]">

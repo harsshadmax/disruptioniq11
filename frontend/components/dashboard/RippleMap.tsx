@@ -50,7 +50,7 @@ export function RippleMap({ data }: { data: Disruption["ripple"] }) {
   }, [data]);
 
   return (
-    <div className="w-full overflow-hidden rounded-2xl bg-[#f4f6f4]" style={{ height: Math.max(250, (Math.max(...data.nodes.map((n) => n.row)) + 1) * 58 + 40) }}>
+    <div className="w-full overflow-hidden rounded-2xl bg-brand-wash" style={{ height: Math.max(250, (Math.max(...data.nodes.map((n) => n.row)) + 1) * 58 + 40) }}>
       <ReactFlow
         key={data.nodes.map((n) => n.id).join("")}
         nodes={nodes}
@@ -67,7 +67,7 @@ export function RippleMap({ data }: { data: Disruption["ripple"] }) {
         preventScrolling={false}
         proOptions={{ hideAttribution: true }}
       >
-        <Background gap={18} size={1} color="#dfe5df" />
+        <Background gap={18} size={1} color="#e1daf5" />
       </ReactFlow>
     </div>
   );
