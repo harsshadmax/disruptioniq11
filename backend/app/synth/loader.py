@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.audit.service import write_audit
 from app.models import (
-    Customer, Disruption, ImportBatch, ImportRowError, Inventory, Notification, Order, OrderLine, OrderRisk, Plan,
+    Customer, CustomerContract, Disruption, ImportBatch, ImportRowError, Inventory, Notification, Order, OrderLine, OrderRisk, Plan,
     PlanStep, Shipment, ShipmentEvent, ShipmentLine, Sku, Supplier, SupplierItem, TransferCost, Warehouse,
 )
 
@@ -15,7 +15,7 @@ class SynthAlreadyLoaded(RuntimeError):
 
 # children before parents; users, warehouses and the audit log are never touched
 _RESET_ORDER = [
-    Notification, PlanStep, Plan, OrderRisk, Disruption, ImportRowError, ImportBatch, ShipmentEvent, ShipmentLine,
+    CustomerContract, Notification, PlanStep, Plan, OrderRisk, Disruption, ImportRowError, ImportBatch, ShipmentEvent, ShipmentLine,
     Shipment, OrderLine, Order, Customer, TransferCost, Inventory, SupplierItem, Sku, Supplier,
 ]
 

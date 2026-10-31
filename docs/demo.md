@@ -15,6 +15,8 @@ cd backend
 
 **Scenario 2: partial delivery plus demand spike.** Shipment `SHP-1077` (*Metro Components* into Mumbai) delivers 55% of the order, then a burst of four new Mumbai orders is imported. Projected stock runs out before the next delivery.
 
+**Showcase data (optional).** To browse a lived-in system instead of two fresh disruptions, load the showcase after the base data: `python -m app.synth.showcase` (add `--dry-run` to preview). It adds situations in all four cities (late shipments, a partial delivery, a stock count gap, a silent carrier) and moves their plans through every status: waiting for approval, approved and waiting for the operator, completed, rejected, and stale. It also leaves refused requests, duplicate and out-of-order carrier events, and an import with rejected rows. Everything goes through the real importers, webhook processor and approval workflow. It does not touch `SHP-1042` or `SHP-1077`, so the two scenarios above still run live afterwards. To start over: `python -m app.synth --seed 42 --reset`, then the showcase again (the audit log is append-only and keeps earlier runs).
+
 Suggested live flow:
 
 1. Sign in as the **Analyst**, fire a scenario, open the new disruption, and click an order to see the *Why?* factor breakdown.
