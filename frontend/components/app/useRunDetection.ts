@@ -10,7 +10,14 @@ export function useRunDetection() {
   return useMutation({
     mutationFn: runDetection,
     onSuccess: (r) => {
-      toast.success(`Detection finished: ${r.created.length} new, ${r.updated.length} updated, ${r.resolved.length} resolved.`);
+      if (r.created.length + r.updated.length + r.resolved.length === 0) {
+        const n = r.unchanged.length;
+        toast.info("Detection ran: nothing new.", {
+          description: `${n === 0 ? "No active disruptions" : `${n} active disruption${n === 1 ? "" : "s"} re-checked, no change`}. Detection only finds something when shipment, stock or order data changes.`,
+        });
+      } else {
+        toast.success(`Detection finished: ${r.created.length} new, ${r.updated.length} updated, ${r.resolved.length} resolved.`);
+      }
       qc.invalidateQueries();
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Detection failed"),
