@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, type TooltipContentProps } from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, type TooltipContentProps } from "recharts";
 import type { Disruption } from "@/lib/types";
 
 const SERIES = [
@@ -31,7 +31,7 @@ function Tip({ active, payload }: TooltipContentProps) {
   );
 }
 
-/** The template's "Delivery performance" line chart, drawn from the ranked orders of the chosen disruption. */
+/** The ranked orders of the chosen disruption as bars: one reads clearly whether there is one order or twenty. */
 export function RiskChart({ d }: { d: Disruption }) {
   const [limit, setLimit] = useState(LIMITS[0]);
   const [on, setOn] = useState<Record<Key, boolean>>({ score: true, uncovered: true });
@@ -69,26 +69,14 @@ export function RiskChart({ d }: { d: Disruption }) {
           <div className="flex h-full items-center justify-center text-xs text-[#6b7480]">No orders at risk.</div>
         ) : (
           <ResponsiveContainer width="100%" height="100%" minHeight={240}>
-            <AreaChart data={data} margin={{ left: -16, right: 8, top: 8, bottom: 0 }}>
-              <defs>
-                <linearGradient id="riskFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#1f4e8c" stopOpacity={0.22} />
-                  <stop offset="100%" stopColor="#1f4e8c" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid stroke="#ece9e2" />
-              <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#6b7480" }} axisLine={false} tickLine={false} tickFormatter={(v: string) => v.replace("ORD-", "")} />
+            <BarChart data={data} margin={{ left: -16, right: 8, top: 8, bottom: 0 }} barGap={4} barCategoryGap="24%">
+              <CartesianGrid stroke="#ece9e2" vertical={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#6b7480" }} axisLine={false} tickLine={false} interval={0} tickFormatter={(v: string) => v.replace("ORD-", "")} />
               <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tick={{ fontSize: 10, fill: "#6b7480" }} axisLine={false} tickLine={false} />
-              <Tooltip content={Tip} cursor={{ stroke: "#1f4e8c", strokeDasharray: "3 3" }} />
-              {on.score && (
-                <Area type="monotone" dataKey="score" stroke="#1f4e8c" strokeWidth={2} fill="url(#riskFill)"
-                  dot={{ r: 3, fill: "#fff", stroke: "#1f4e8c", strokeWidth: 1.5 }} activeDot={{ r: 5 }} />
-              )}
-              {on.uncovered && (
-                <Area type="monotone" dataKey="uncovered" stroke="#14b8a6" strokeWidth={2} fill="none"
-                  dot={{ r: 3, fill: "#fff", stroke: "#14b8a6", strokeWidth: 1.5 }} activeDot={{ r: 5 }} />
-              )}
-            </AreaChart>
+              <Tooltip content={Tip} cursor={{ fill: "#f1eee7" }} />
+              {on.score && <Bar dataKey="score" fill="#1f4e8c" radius={[4, 4, 0, 0]} maxBarSize={36} />}
+              {on.uncovered && <Bar dataKey="uncovered" fill="#14b8a6" radius={[4, 4, 0, 0]} maxBarSize={36} />}
+            </BarChart>
           </ResponsiveContainer>
         )}
       </div>
