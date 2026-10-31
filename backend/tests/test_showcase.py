@@ -62,3 +62,32 @@ def test_the_scripted_scenarios_still_have_their_shipments_untouched(seeded):
     for ref in ("SHP-1042", "SHP-1077"):
         ship = seeded.execute(select(Shipment).where(Shipment.ref == ref)).scalar_one()
         assert ship.last_seq == 0, f"{ref} would no longer accept the demo scenario's first event"
+
+
+def test_contracts_appear_in_every_state(seeded):
+    from app.models import CustomerContract
+    rows = seeded.execute(select(CustomerContract.status, CustomerContract.filename)).all()
+    assert {r[0] for r in rows} == {"confirmed", "superseded", "pending", "rejected"}
+    assert sum(r[0] == "confirmed" for r in rows) == 3  # one per customer: the 2025 Sundaram contract was replaced
+    assert sum(r[0] == "pending" for r in rows) == 3
+    actions = set(seeded.execute(select(AuditLog.action)).scalars())
+    assert {"contract.uploaded", "contract.confirmed", "contract.rejected"} <= actions
+
+
+def test_every_approval_queue_has_work_and_edited_plans_were_approved_by_someone_else(seeded):
+    plans = seeded.execute(select(Plan)).scalars().all()
+    waiting = [(p.type, p.status) for p in plans]
+    assert waiting.count(("reallocate", "PROPOSED")) >= 3  # the manager's queue
+    assert waiting.count(("expedite", "PROPOSED")) >= 2  # procurement's queue
+    assert waiting.count(("reallocate", "APPROVED")) >= 2  # the Chennai operator's queue
+    edited = [p for p in plans if p.modified_by_ids and p.status in ("APPROVED", "COMPLETED")]
+    assert len(edited) >= 2
+    assert all(p.approver_id not in p.modified_by_ids for p in edited)
+
+
+def test_the_scripted_scenario_disruptions_get_no_showcase_plans(seeded):
+    from app.models import Shipment
+    for ref in ("SHP-1042", "SHP-1077"):
+        ship = seeded.execute(select(Shipment).where(Shipment.ref == ref)).scalar_one()
+        for d in seeded.execute(select(Disruption).where(Disruption.shipment_id == ship.id)).scalars():
+            assert all(p.status == "DRAFT" for p in seeded.execute(select(Plan).where(Plan.disruption_id == d.id)).scalars())

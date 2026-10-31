@@ -2,6 +2,8 @@
 
   python -m app.synth.showcase              straight into the local database (needs the base demo data; runs once)
   python -m app.synth.showcase --dry-run    the same, printed, then rolled back
+  python -m app.synth.showcase --extra      add customer contracts and more plans waiting in each approval queue
+                                            (for a database or API that already holds the showcase; also works with --api)
   python -m app.synth.showcase --api https://<service>.onrender.com --password <DEMO_PASSWORD> \\
         --webhook-secret <WEBHOOK_SECRET> --base-date 2026-10-30        through a deployed API (no database access needed)
 
@@ -25,15 +27,21 @@ from sqlalchemy.orm import Session
 from app.act import service as act
 from app.act.errors import Conflict, Forbidden, Invalid, NotFound
 from app.config import settings
+from app.contracts import service as contracts
+from app.contracts.rules import Terms
 from app.db import SessionLocal
 from app.detect.service import run_detection
 from app.enums import PlanStatus, PlanType, Role
 from app.ingest.importers import run_import
 from app.ingest.webhook import CarrierEvent, ReceivedLine, process_event, sign
-from app.models import Disruption, Notification, Order, Plan, Shipment, ShipmentEvent, Sku, User, Warehouse
+from app.models import (
+    Customer, CustomerContract, Disruption, Notification, Order, Plan, Shipment, ShipmentEvent, Sku, User, Warehouse,
+)
 from app.seed_users import DEMO_PASSWORD
+from app.synth.pdfmaker import CONTRACT_LINES, make_pdf
 
 MARKER_ORDER, MARKER_FILE = "SHW-M01", "orders_week44.csv"
+EXTRA_ORDER, EXTRA_CONTRACT = "SHW-A01", "sundaram_supply_agreement_2025.pdf"  # what marks the extras as loaded
 MANAGER_APPROVES = {PlanType.REALLOCATE, PlanType.SPLIT}  # the matrix: managers approve and operators execute these
 ROLE_EMAIL = {Role.ANALYST: "analyst@diq.test", Role.MANAGER: "manager@diq.test", Role.OPERATOR: "operator@diq.test",
               Role.PROCUREMENT: "procurement@diq.test"}
@@ -83,6 +91,14 @@ class Showcase:
 
     def act_on(self, role: Role, action: str, plan: PlanRef, **body) -> PlanRef | None:
         """Perform an action as `role`. Returns the plan, or None if the rules refused (the refusal is audited)."""
+        raise NotImplementedError
+
+    def contract_upload(self, customer: str, filename: str, lines: list[str]) -> tuple[int, dict]:
+        """Upload a contract PDF as the analyst. Returns the contract id and the terms the reader proposed."""
+        raise NotImplementedError
+
+    def contract_decide(self, contract_id: int, action: str, terms: dict | None = None) -> None:
+        """Confirm (with these terms) or reject a pending contract, as the manager."""
         raise NotImplementedError
 
     def tidy_inbox(self) -> None:
@@ -138,15 +154,28 @@ class Showcase:
         plan.version, plan.params = out.version, out.params  # the caller's handle stays current for the next step
         return out
 
+    @staticmethod
+    def nudge(plan: PlanRef) -> dict | None:
+        """A small, valid edit to the plan's own numbers, or None when it has none to change (a split)."""
+        p = plan.params
+        if plan.type == PlanType.EXPEDITE:
+            return {"days_saved": p["days_saved"] - 1} if p.get("days_saved", 0) > 1 else None
+        return {"qty": p["qty"] - 10} if plan.type in (PlanType.REALLOCATE, PlanType.ALT_SUPPLIER) and p.get("qty", 0) > 10 else None
+
     def blocked_attempts(self, plan: PlanRef) -> None:
         """Two refusals on one proposed plan: a role without approval rights, then the reviewer who edited it."""
         self.act_on(Role.ANALYST, "approve", plan)
-        reviewer, p = self.approver(plan), plan.params
-        change = ({"qty": p["qty"] - 10} if p.get("qty", 0) > 10 else {"days_saved": p["days_saved"] - 1}
-                  if p.get("days_saved", 0) > 1 else None)
+        reviewer, change = self.approver(plan), self.nudge(plan)
         if change:
             self.act_on(reviewer, "modify", plan, changes=change)
             self.act_on(reviewer, "approve", self.plan(plan.id))
+
+    def modify_then_approve(self, plan: PlanRef) -> PlanRef:
+        """The other reviewer trims the plan first (a modifier may not approve), then the usual approver signs it off."""
+        change = self.nudge(plan)
+        if change:
+            self._must(Role.PROCUREMENT if self.approver(plan) == Role.MANAGER else Role.MANAGER, "modify", plan, changes=change)
+        return self.approve(plan)
 
 
 class DbShowcase(Showcase):
@@ -203,6 +232,19 @@ class DbShowcase(Showcase):
         except (Forbidden, Conflict, Invalid, NotFound):
             self.db.flush()  # the refusal's audit row was written before the error was raised
             return None
+
+    def contract_upload(self, customer, filename, lines):
+        cid = self.db.execute(select(Customer.id).where(Customer.name == customer)).scalar_one()
+        row = contracts.upload(self.db, self.who[Role.ANALYST], cid, filename, make_pdf(lines))
+        return row.id, row.terms_json
+
+    def contract_decide(self, contract_id, action, terms=None):
+        manager = self.who[Role.MANAGER]
+        if action == "confirm":
+            contracts.confirm(self.db, manager, contract_id, Terms(**terms), False)
+        else:
+            contracts.reject(self.db, manager, contract_id)
+        self.db.flush()
 
     def tidy_inbox(self):
         """An inbox that looks lived in: everything but each person's newest few is already read."""
@@ -285,9 +327,26 @@ class ApiShowcase(Showcase):
         r = self.http.post(f"/plans/{plan.id}/{action}", headers=self._token(role), json={"version": plan.version, **body})
         return self._ref(r.json()) if r.status_code == 200 else None
 
+    def contract_upload(self, customer, filename, lines):
+        customers = self.http.get("/contracts/customers", headers=self._token(Role.ANALYST)).json()
+        cid = next(c["id"] for c in customers if c["name"] == customer)
+        r = self.http.post("/contracts/upload", headers=self._token(Role.ANALYST), data={"customer_id": cid},
+                           files={"file": (filename, make_pdf(lines), "application/pdf")})
+        r.raise_for_status()
+        return r.json()["id"], r.json()["terms"]
+
+    def contract_decide(self, contract_id, action, terms=None):
+        h = self._token(Role.MANAGER)
+        r = (self.http.post(f"/contracts/{contract_id}/confirm", headers=h, json={"terms": terms, "override_ai": False})
+             if action == "confirm" else self.http.post(f"/contracts/{contract_id}/reject", headers=h))
+        r.raise_for_status()
+
     def already_loaded(self) -> bool:
         batches = self.http.get("/import/batches", params={"limit": 100}, headers=self._token(Role.ANALYST)).json()
         return any(b["filename"] == MARKER_FILE for b in batches)
+
+    def extras_loaded(self) -> bool:
+        return any(c["filename"] == EXTRA_CONTRACT for c in self.http.get("/contracts", headers=self._token(Role.MANAGER)).json())
 
     def summary(self) -> list[str]:
         h = self._token(Role.MANAGER)
@@ -404,9 +463,132 @@ def episodes(s: Showcase) -> None:
     s.tidy_inbox()
 
 
-def seed(db: Session) -> Showcase:
+
+# (customer, file, lines, what the manager does: "confirm", "reject", or None = left pending, edits made before confirming)
+CONTRACT_SET: list[tuple[str, str, list[str], str | None, dict]] = [
+    ("Sundaram Auto Parts", EXTRA_CONTRACT, [
+        "SUPPLY AGREEMENT 2025 - Sundaram Auto Parts",
+        "1. Scope. The Supplier delivers goods to the Customer's nominated warehouse by the agreed date.",
+        "2. Late delivery. Liquidated damages accrue at the rate of 1% of the order value per day of delay,",
+        "capped at 5% of the order value.",
+        "3. No penalty applies for a delay within a grace period of 2 days.",
+        "4. Neither party is liable for delay caused by events of force majeure."], "confirm", {}),
+    ("Sundaram Auto Parts", "sundaram_supply_agreement_2026.pdf", CONTRACT_LINES, "confirm", {}),  # replaces the 2025 one
+    ("Marina Engineering Works", "marina_master_supply_agreement.pdf", [
+        "MASTER SUPPLY AGREEMENT - Marina Engineering Works",
+        "1. Scope. Goods are delivered to the Customer's Chennai warehouse by the due date of each order.",
+        "2. Late delivery. If an order is late, the Supplier shall pay a penalty of 2.5% of the order value per day",
+        "of delay, capped at 12% of the order value.",
+        "3. No penalty applies for a delay within a grace period of 2 days.",
+        "4. The Customer may terminate an order if the delay exceeds 10 calendar days.",
+        "5. Neither party is liable for delay caused by events of force majeure."], "confirm", {}),
+    ("Okhla Precision Parts", "okhla_service_level_terms.pdf", [
+        "SERVICE LEVEL TERMS - Okhla Precision Parts",
+        "1. Scope. Parts are delivered to the Customer's Delhi warehouse by the date on each order.",
+        "2. Late delivery. Liquidated damages of Rs. 18,000 per late order are payable by the Supplier,",
+        "not to exceed Rs. 40,000 for any one order.",
+        "3. The Customer may terminate an order if the delay exceeds 21 calendar days."], "confirm", {"grace_days": 1}),
+    ("Lalbagh Electronics", "lalbagh_purchase_terms.pdf", [
+        "PURCHASE TERMS - Lalbagh Electronics",
+        "1. Scope. Components are delivered to the Customer's Bengaluru warehouse by the order due date.",
+        "2. Late delivery. A penalty of 1.5% of the order value per day of delay applies, not exceeding 8% of",
+        "the order value.",
+        "3. No penalty applies for a delay within a grace period of 4 days.",
+        "4. Neither party is liable for delay caused by events of force majeure."], None, {}),
+    ("Kaveri Appliances", "kaveri_framework_agreement.pdf", [
+        "FRAMEWORK AGREEMENT - Kaveri Appliances",
+        "1. Scope. The Supplier delivers appliance components to the Customer's Bengaluru warehouse.",
+        "2. Late delivery. Liquidated damages of 1.5% of the order value shall be charged for each day of delay.",
+        "3. The Customer may terminate an order if the delay exceeds 15 calendar days."], None, {}),
+    ("Whitefield Tools", "whitefield_services_agreement.pdf", [
+        "SERVICES AGREEMENT - Whitefield Tools",
+        "1. Scope. The Supplier delivers tooling to the Customer's Bengaluru warehouse.",
+        "2. Delivery dates on each order are targets agreed between the parties and may be revised by consent.",
+        "3. Payment is due 30 days after receipt of goods."], None, {}),
+    ("Western Grid Industries", "western_grid_export_contract.pdf", [
+        "EXPORT SUPPLY CONTRACT - Western Grid Industries",
+        "1. Scope. Goods are supplied to the Customer's Mumbai warehouse.",
+        "2. Late delivery. Liquidated damages of USD 500 per late order apply, not to exceed USD 2,000.",
+        "3. Either party may refer disputes to arbitration."], "reject", {}),
+]
+
+
+def contract_episodes(s: Showcase) -> None:
+    """Contracts in every state a person can find them: confirmed, replaced by a newer one, waiting, and rejected.
+    The analyst uploads and the manager decides; the reader's proposals are used as they came, except where the manager edits."""
+    for customer, filename, lines, decision, edits in CONTRACT_SET:
+        contract_id, terms = s.contract_upload(customer, filename, lines)
+        if decision == "confirm":
+            s.contract_decide(contract_id, "confirm", terms | edits)
+        elif decision == "reject":
+            s.contract_decide(contract_id, "reject")
+
+
+def approval_episodes(s: Showcase) -> None:
+    """More plans waiting in each person's queue, two edited by the other reviewer first, one declined, one finished."""
+    def inbound(ref: str, supplier: str, carrier: str, wh: str, sku: str, qty: int, days: int) -> None:
+        s.import_rows("shipments", [{"shipment_ref": ref, "supplier": supplier, "carrier": carrier, "dest_warehouse": wh,
+                                     "promised_eta": (s.now + timedelta(days=days)).isoformat(), "sku": sku, "qty": qty}],
+                      filename=f"inbound_{wh.lower()}_{ref.lower()}.csv")
+
+    # Chennai: a reallocation waits for the manager
+    inbound("SHP-7101", "Coastal Polymers", "RoadRunner Freight", "Chennai", "SKU-008", 100, 3)
+    s.orders("Chennai", "SKU-008", "SHP-7101", [
+        (EXTRA_ORDER, "Marina Engineering Works", 2, 90, 16000), ("SHW-A02", "Adyar Packaging Co", 5, 80, 6000)])
+    s.event("SHP-7101", "delayed", delay_days=7, reason="Lorry breakdown near Krishnagiri; load moved to another vehicle")
+    s.propose(s.draft(s.disruption("Chennai", "SKU-008"), PlanType.REALLOCATE))
+
+    # Mumbai: an expedite is trimmed by the manager, approved by procurement and carried out by the analyst
+    inbound("SHP-7102", "Apex Electricals", "AirSwift Cargo", "Mumbai", "SKU-008", 150, 3)
+    s.orders("Mumbai", "SKU-008", "SHP-7102", [
+        ("SHW-A11", "Konkan Fabricators", 2, 120, 15000), ("SHW-A12", "Western Grid Industries", 5, 100, 8000)])
+    s.event("SHP-7102", "delayed", delay_days=6, reason="Customs inspection hold at Nhava Sheva")
+    plan = s.propose(s.draft(s.disruption("Mumbai", "SKU-008"), PlanType.EXPEDITE, PlanType.ALT_SUPPLIER))
+    s.modify_then_approve(plan)
+    s.execute(plan)
+
+    # Delhi: a second supplier is suggested and waits for procurement
+    inbound("SHP-7103", "Deccan Plastics", "SeaLink Logistics", "Delhi", "SKU-020", 120, 4)
+    s.orders("Delhi", "SKU-020", "SHP-7103", [
+        ("SHW-A21", "Okhla Precision Parts", 3, 110, 14000), ("SHW-A22", "Gurgaon Retail Supplies", 6, 100, 7000)])
+    s.event("SHP-7103", "delayed", delay_days=8, reason="Port strike at Mundra; vessel held at anchorage")
+    s.propose(s.draft(s.disruption("Delhi", "SKU-020"), PlanType.ALT_SUPPLIER, PlanType.EXPEDITE))
+
+    # Chennai: procurement trims a reallocation, the manager approves it, and it waits for the Chennai operator
+    inbound("SHP-7104", "Coastal Polymers", "RoadRunner Freight", "Chennai", "SKU-003", 120, 3)
+    s.orders("Chennai", "SKU-003", "SHP-7104", [
+        ("SHW-A31", "Adyar Packaging Co", 2, 100, 9000), ("SHW-A32", "Marina Engineering Works", 5, 90, 12000)])
+    s.event("SHP-7104", "delayed", delay_days=8, reason="Truck diverted after a bridge closure on NH44")
+    s.modify_then_approve(s.propose(s.draft(s.disruption("Chennai", "SKU-003"), PlanType.REALLOCATE)))
+
+    # Bengaluru: procurement declines an expedite whose premium outweighs the penalty
+    inbound("SHP-7105", "Apex Electricals", "AirSwift Cargo", "Bengaluru", "SKU-014", 150, 4)
+    s.orders("Bengaluru", "SKU-014", "SHP-7105", [
+        ("SHW-A41", "Lalbagh Electronics", 3, 130, 11000), ("SHW-A42", "Whitefield Tools", 6, 120, 5000)])
+    s.event("SHP-7105", "delayed", delay_days=7, reason="Aircraft swap at Delhi; cargo offloaded")
+    plan = s.propose(s.draft(s.disruption("Bengaluru", "SKU-014"), PlanType.EXPEDITE, PlanType.ALT_SUPPLIER))
+    s.reject(plan, "The freight premium is higher than the penalty at stake; the supplier has confirmed a new date.")
+
+    # Mumbai: another reallocation waits for the manager
+    inbound("SHP-7106", "Northline Metals", "RoadRunner Freight", "Mumbai", "SKU-001", 120, 3)
+    s.orders("Mumbai", "SKU-001", "SHP-7106", [
+        ("SHW-A51", "Thane Hardware Mart", 3, 150, 6000), ("SHW-A52", "Konkan Fabricators", 6, 110, 9000)])
+    s.event("SHP-7106", "delayed", delay_days=9, reason="Loading delayed at the supplier's plant")
+    s.propose(s.draft(s.disruption("Mumbai", "SKU-001"), PlanType.REALLOCATE, PlanType.SPLIT))
+
+
+def extras(s: Showcase) -> None:
+    """Contracts first, so the penalties on the new orders already follow them, then the extra approvals."""
+    contract_episodes(s)
+    approval_episodes(s)
+    s.tidy_inbox()
+
+
+def seed(db: Session, *, only_extras: bool = False) -> Showcase:
     s = DbShowcase(db)
-    episodes(s)
+    if not only_extras:
+        episodes(s)
+    extras(s)
     return s
 
 
@@ -425,6 +607,8 @@ def summary(db: Session) -> list[str]:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dry-run", action="store_true", help="local database only: run everything, print, roll back")
+    ap.add_argument("--extra", action="store_true",
+                    help="only add the contracts and the extra plans, to data that already holds the showcase")
     ap.add_argument("--api", help="base URL of a running API; use it instead of the local database")
     ap.add_argument("--password", default=DEMO_PASSWORD, help="the demo users' password (with --api)")
     ap.add_argument("--webhook-secret", default=settings.webhook_secret, help="the API's WEBHOOK_SECRET (with --api)")
@@ -434,19 +618,22 @@ def main() -> int:
 
     if args.api:
         s = ApiShowcase(args.api, args.password, args.webhook_secret, args.base_date)
-        if s.already_loaded():
+        if s.extras_loaded() or (s.already_loaded() and not args.extra):
             print("The showcase data is already loaded.")
             return 1
-        episodes(s)
+        if not args.extra:
+            episodes(s)
+        extras(s)
         print("\n".join(s.summary()))
         print("showcase data loaded through", args.api)
         return 0
 
     with SessionLocal() as db:
-        if db.execute(select(func.count(Order.id)).where(Order.ref == MARKER_ORDER)).scalar_one():
+        loaded = lambda ref: db.execute(select(func.count(Order.id)).where(Order.ref == ref)).scalar_one()  # noqa: E731
+        if loaded(EXTRA_ORDER) or (loaded(MARKER_ORDER) and not args.extra):
             print("The showcase data is already loaded.")
             return 1
-        seed(db)
+        seed(db, only_extras=args.extra)
         print("\n".join(summary(db)))
         print("carrier events:", dict(db.execute(select(ShipmentEvent.outcome, func.count()).group_by(ShipmentEvent.outcome)).all()))
         if args.dry_run:
