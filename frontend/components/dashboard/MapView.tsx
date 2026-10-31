@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import "leaflet/dist/leaflet.css";
-import { along, SUPPLIER_POS, WAREHOUSE_POS } from "./geo";
+import { along, alongPath, roadRoute, SUPPLIER_POS, WAREHOUSE_POS, type LatLng } from "./geo";
 
 const TILES = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 const RED = "#c8352b";
@@ -45,8 +45,20 @@ export function MapView({ warehouse, supplier, shipment }: { warehouse: string; 
         L.marker(sup, { icon: icon(`${label(supplier)}<div class="diq-dot" style="background:${ORANGE}"></div>`, [30, 56]), zIndexOffset: 400 }).addTo(map);
       }
       if (sup && wh) {
-        L.polyline([sup, wh], { color: RED, weight: 2.5, dashArray: "6 6", opacity: 0.85 }).addTo(map);
-        const at = along(sup, wh, 0.6);
+        const road = roadRoute(supplier, warehouse);
+        let at: LatLng;
+        if (road) {
+          // Follow the highways: a white casing under the red line keeps it readable on the street tiles.
+          L.polyline(road.points, { color: "#ffffff", weight: 7, opacity: 0.9 }).addTo(map);
+          L.polyline(road.points, { color: RED, weight: 4, opacity: 0.95 }).addTo(map);
+          bounds.push(...road.points);
+          at = alongPath(road.points, 0.6);
+          const mid = alongPath(road.points, 0.3);
+          L.marker(mid, { icon: icon(`<div class="diq-pin-label">${esc(`${road.km} km · about ${Math.round(road.hours)} h driving`)}</div>`, [160, 22]), interactive: false, zIndexOffset: 300 }).addTo(map);
+        } else {
+          L.polyline([sup, wh], { color: RED, weight: 2.5, dashArray: "6 6", opacity: 0.85 }).addTo(map);
+          at = along(sup, wh, 0.6);
+        }
         const tag = shipment ? label(shipment) : "";
         L.marker(at, { icon: icon(`${tag}<div class="diq-dot diq-dot-lg" style="background:${RED}"><b></b></div>`, [34, 62]), zIndexOffset: 600 }).addTo(map);
       }
