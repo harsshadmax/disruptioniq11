@@ -18,6 +18,7 @@ All data is **synthetic demo data**. No real customers, suppliers or carriers ar
 | **Rank** | A 0 to 100 risk score per order from five weighted factors, with a "Why?" breakdown |
 | **Recover** | Reallocate, expedite, alternative supplier or split order, each with cost and net benefit |
 | **Approve** | Separation of duties and role checks; execution is simulated, never sent to a real system |
+| **Contracts** | Upload a customer contract (PDF); the app reads the penalty terms, an AI double-checks them, a manager confirms, and the customer's penalty exposure updates |
 | **What-if lab** | Test a supplier shutdown, delay, demand surge or stock cut without touching real data |
 | **Audit** | Append-only, hash-chained log with a chain check |
 

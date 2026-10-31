@@ -10,6 +10,9 @@ PERMISSIONS: dict[str, frozenset[Role]] = {
     "detect.run": frozenset({A, M, ADM}),
     "ai.use": frozenset({A, M, P}),  # advisory text only; cannot approve or execute anything
     "simulate.run": frozenset({A, M, P, ADM}),  # read-only what-if; network-wide, so not for warehouse-scoped operators
+    "contract.view": frozenset({A, M, P, ADM}),  # customer penalty terms; network-wide, so not for operators
+    "contract.upload": frozenset({A, M, ADM}),  # reads a PDF and proposes terms; changes no number
+    "contract.confirm": frozenset({M}),  # only a Supply Chain Manager makes terms count; admin has no approval rights
     "plan.create": frozenset({A, M}),
     "plan.propose": frozenset({A}),
     "plan.modify": frozenset({A, M, P}),

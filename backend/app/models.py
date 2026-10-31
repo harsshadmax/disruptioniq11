@@ -153,6 +153,25 @@ class ShipmentEvent(Base):
     received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
+class CustomerContract(Base):
+    """An uploaded contract and the penalty terms read from it. Only a confirmed contract changes any number."""
+
+    __tablename__ = "customer_contracts"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    customer_id: Mapped[int] = mapped_column(ForeignKey("customers.id"))
+    filename: Mapped[str | None] = mapped_column(String(200))
+    file_sha256: Mapped[str] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(12), default="pending")  # pending | confirmed | superseded | rejected
+    text_content: Mapped[str] = mapped_column(Text)
+    extracted_json: Mapped[dict] = mapped_column(JSONB, default=dict)  # what the reader found, with the source sentences
+    terms_json: Mapped[dict] = mapped_column(JSONB, default=dict)  # proposed at first, then what a person confirmed
+    ai_check_json: Mapped[dict | None] = mapped_column(JSONB)
+    uploaded_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+    uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    decided_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
 class ImportBatch(Base):
     __tablename__ = "import_batches"
     id: Mapped[int] = mapped_column(primary_key=True)

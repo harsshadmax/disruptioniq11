@@ -23,6 +23,20 @@ export type SimulationResult = S["SimulationOut"];
 export type SimulationOrder = S["OrderRow"];
 export type SimulationWarehouse = S["WarehouseRow"];
 export type SimulationMetrics = S["MetricsOut"];
+export type Contract = S["ContractOut"];
+export type ContractTerms = S["Terms"];
+export type ContractCustomer = S["CustomerOut"];
+export type ContractPreview = S["PreviewOut"];
+export type ContractConfirmResult = S["ConfirmOut"];
+
+/** The AI second opinion on a contract's terms (the API sends it as a plain object). */
+export type AiCheck =
+  | { available: false; reason: string }
+  | {
+      available: true; provider: string; model: string | null; summary: string;
+      checks: { field: string; label: string; value: number | string | boolean; verdict: "supported" | "contradicted" | "not_found" | "unverified"; quote: string }[];
+      missed: { what: string; quote: string }[];
+    };
 
 /** One event of a what-if scenario, as the API expects it. */
 export type ScenarioEvent =
@@ -66,6 +80,9 @@ export const CAN = {
   readAudit: ["supply_chain_manager", "procurement_approver", "administrator"],
   useAi: ["ops_analyst", "supply_chain_manager", "procurement_approver"],
   simulate: ["ops_analyst", "supply_chain_manager", "procurement_approver", "administrator"],
+  contractView: ["ops_analyst", "supply_chain_manager", "procurement_approver", "administrator"],
+  contractUpload: ["ops_analyst", "supply_chain_manager", "administrator"],
+  contractConfirm: ["supply_chain_manager"],
   demoControls: ["administrator"],
 } as const;
 

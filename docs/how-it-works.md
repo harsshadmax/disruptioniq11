@@ -33,6 +33,15 @@ Each plan reports cost, orders saved, penalty avoided and net benefit. *Orders s
 
 **AI layer** (`backend/app/ai/`, optional). It writes a disruption summary, recommends one of the feasible plans, and explains one order's risk. Its output must pass a check that every number in it appears in the input; an invented number, an unknown plan id, an API error or a missing key falls back to a template. Each answer reports its `source` (`ai` or `template`). `ai/client.py` is the only file that imports the SDK.
 
+**Contract terms** (`backend/app/contracts/`, `backend/app/ai/contract_check.py`). A customer's contract can replace the fixed penalty that came with its orders. The flow keeps a person in charge of every figure:
+
+1. **Upload** a text-based PDF for one customer (Analyst, Manager or Admin). The reader finds clauses of known shapes: penalty rate per day or week, cap as a percent or an amount, a fixed amount per late order, grace period, a customer's right to cancel after a delay, and a force majeure clause. Each proposed value comes with the sentence it was read from. Nothing changes yet.
+2. **Review.** The proposed values are shown in a form; correct any of them. A preview lists the customer's open orders with the penalty they carry now and under the terms.
+3. **AI check** (optional). The final values and only the delay and penalty sentences go to an AI service, which must quote the contract for each value. A verdict counts only when the quote is really in the contract and contains the number; otherwise it shows as "No evidence". The AI can disagree but cannot change a figure. Configure it with `CHECK_LLM_BASE_URL`, `CHECK_LLM_API_KEY` and `CHECK_LLM_MODEL` (any OpenAI-compatible API, for example a free tier), or with the Claude key. Free tiers may keep what they receive, so use synthetic or non-confidential contracts there.
+4. **Confirm** (Supply Chain Manager only). If the AI check found a different value, confirming needs an explicit "confirm anyway", recorded in the audit log. Confirming retires the customer's previous contract and recomputes disruptions, so risk scores, penalty exposure, recovery plans and the What-if lab all use the new penalty.
+
+The penalty used is the most the contract can charge for one late order, because the final delay is not known when risk is scored: the fixed amount or the cap, whichever is lower (a percent cap is applied to the order value). Terms with no cap and no fixed amount leave the order's own penalty in place. A sample contract is in `docs/samples/`.
+
 ## Safety guards
 
 | Risk | Guard |
@@ -66,6 +75,9 @@ Enforced in the backend on every route (`backend/app/auth/permissions.py`). The 
 | Approve expedite / alt supplier | | | | yes | |
 | Confirm execution of reallocate / split | | | yes | | |
 | Confirm execution of expedite / alt supplier | yes | | | | |
+| View contracts | yes | yes | | yes | yes |
+| Upload a contract and run the AI check | yes | yes | | | yes |
+| Confirm contract terms | | yes | | | |
 | Read audit log | | yes | | yes | yes |
 | Manage users | | | | | yes |
 | Demo controls | | | | | yes |
@@ -87,6 +99,7 @@ Interactive docs are served at `http://localhost:8000/docs`. Main routes:
 | Notifications | `GET /notifications`, `POST /notifications/read-all`, `POST /notifications/{id}/read` |
 | Audit | `GET /audit`, `GET /audit/verify` |
 | Users | `GET /users`, `POST /users` (Administrator) |
+| Contracts | `GET /contracts`, `GET /contracts/customers`, `POST /contracts/upload` (PDF), `GET /contracts/{id}`, `POST /contracts/{id}/preview\|check\|confirm\|reject` |
 | What-if lab | `GET /simulate/options`, `POST /simulate/run` (read-only; Analyst, Manager, Procurement, Admin) |
 | Demo controls | `GET /demo/targets`, `POST /demo/replay-duplicate\|stale-event\|self-approval\|double-approve` (Administrator) |
 | Health | `GET /health` |

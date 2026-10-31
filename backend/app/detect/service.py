@@ -157,7 +157,7 @@ def run_detection(db: Session, now: datetime | None = None) -> DetectionReport:
         want = _build(cell, now, dtype, trigger, wh_names[cell.warehouse_id], skus[cell.sku_id])
         seen.add(key)
         d = active.get(key)
-        new_rows = [(r["order_id"], r["score"], r["rank"]) for r in want.risks]
+        new_rows = [(r["order_id"], r["score"], r["rank"], r["factors"]["sla_penalty"]) for r in want.risks]
         if d is None:
             d = Disruption(type=want.type, shipment_id=want.shipment_id, sku_id=cell.sku_id,
                            warehouse_id=cell.warehouse_id, severity=want.severity, status="active",
@@ -167,7 +167,7 @@ def run_detection(db: Session, now: datetime | None = None) -> DetectionReport:
             action = "disruption.detected"
             report.created.append(d.id)
         else:
-            old_rows = [(r.order_id, r.score, r.rank) for r in db.execute(
+            old_rows = [(r.order_id, r.score, r.rank, r.factors_json.get("sla_penalty")) for r in db.execute(
                 select(OrderRisk).where(OrderRisk.disruption_id == d.id).order_by(OrderRisk.rank)).scalars()]
             if (d.type, d.severity, d.shipment_id, old_rows) == (want.type, want.severity, want.shipment_id, new_rows):
                 report.unchanged.append(d.id)

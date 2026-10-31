@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import type {
   AuditRow, AuditVerify, DemoTargets, Disruption, DisruptionDetail, ImportResult, Inbox, Plan, RankedOrder,
-  SimulationOptions,
+  Contract, ContractCustomer, SimulationOptions,
 } from "@/lib/api/types";
 
 const POLL = 15_000;
@@ -45,3 +45,9 @@ export const useSimulationOptions = (enabled: boolean) =>
 
 export const useBatches = () =>
   useQuery({ queryKey: ["batches"], queryFn: () => api<ImportResult[]>("/import/batches", { params: { limit: 10 } }) });
+
+export const useContracts = () =>
+  useQuery({ queryKey: ["contracts"], queryFn: () => api<Contract[]>("/contracts"), refetchInterval: POLL });
+
+export const useContractCustomers = () =>
+  useQuery({ queryKey: ["contracts", "customers"], queryFn: () => api<ContractCustomer[]>("/contracts/customers") });

@@ -150,7 +150,8 @@ def test_login_fields_are_length_capped(client):
 # ---- the UI's role lists must not drift from the permission matrix ---------------------------------------------
 UI_TO_MATRIX = {"runDetection": "detect.run", "importData": "import.run", "propose": "plan.propose",
                 "generatePlans": "plan.create", "readAudit": "audit.read", "useAi": "ai.use",
-                "demoControls": "demo.controls"}
+                "demoControls": "demo.controls", "simulate": "simulate.run", "contractView": "contract.view",
+                "contractUpload": "contract.upload", "contractConfirm": "contract.confirm"}
 
 
 def _can_lists() -> dict[str, set[str]]:

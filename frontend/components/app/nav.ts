@@ -1,5 +1,5 @@
 import {
-  ClipboardCheck, FlaskConical, LayoutDashboard, ScrollText, SlidersHorizontal, Truck, Upload,
+  ClipboardCheck, FileSignature, FlaskConical, LayoutDashboard, ScrollText, SlidersHorizontal, Truck, Upload,
 } from "lucide-react";
 import { allowed, CAN } from "@/lib/api/types";
 
@@ -11,6 +11,7 @@ export const MAIN: NavItem[] = [
   { href: "/disruptions", icon: Truck, label: "Disruptions", key: "s" },
   { href: "/approvals", icon: ClipboardCheck, label: "Approvals", key: "a" },
   { href: "/simulate", icon: SlidersHorizontal, label: "What-if lab", key: "w", show: (r) => allowed(CAN.simulate, r) },
+  { href: "/contracts", icon: FileSignature, label: "Contracts", key: "t", show: (r) => allowed(CAN.contractView, r) },
   { href: "/import", icon: Upload, label: "Import", key: "i" },
 ];
 export const OVERSIGHT: NavItem[] = [

@@ -15,6 +15,7 @@ Copy `.env.example` to `backend/.env` for the API and set `frontend/.env.local` 
 | `DEMO_PASSWORD` | backend | Password for the five demo users; required outside development |
 | `CORS_ORIGINS` | backend | Allowed web origins, comma separated |
 | `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` | backend | Optional. Unset means template text everywhere |
+| `CHECK_LLM_BASE_URL`, `CHECK_LLM_API_KEY`, `CHECK_LLM_MODEL` | backend | Optional. An OpenAI-compatible API (for example a free tier) that double-checks contract terms. Unset means the check falls back to Claude if a key is set, otherwise it is unavailable |
 | `NEXT_PUBLIC_API_URL` | frontend | Base URL of the API |
 | `NEXT_PUBLIC_DEMO_PASSWORD` | frontend | Optional. Enables one-click role buttons on the login page. Public in the browser bundle: use only on a clearly marked demo deployment |
 

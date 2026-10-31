@@ -2,7 +2,7 @@ const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const TOKEN_KEY = "diq_token";
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string) {
+  constructor(public status: number, message: string, public detail?: unknown) {
     super(message);
   }
 }
@@ -28,6 +28,7 @@ type Opts = { method?: string; body?: unknown; form?: FormData; params?: Record<
 
 function describe(detail: unknown): string {
   if (typeof detail === "string") return detail;
+  if (detail && typeof detail === "object" && typeof (detail as { message?: unknown }).message === "string") return (detail as { message: string }).message;
   if (Array.isArray(detail)) return detail.map((d) => (d?.msg ? `${(d.loc ?? []).slice(1).join(".")}: ${d.msg}` : String(d))).join("; ");
   return "Request failed";
 }
@@ -57,6 +58,6 @@ export async function api<T>(path: string, opts: Opts = {}): Promise<T> {
     if (typeof window !== "undefined" && window.location.pathname !== "/login") window.location.href = "/login";
   }
   const data = await res.json().catch(() => null);
-  if (!res.ok) throw new ApiError(res.status, describe(data?.detail));
+  if (!res.ok) throw new ApiError(res.status, describe(data?.detail), data?.detail);
   return data as T;
 }

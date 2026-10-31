@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     webhook_secret: str = _DEFAULT_WEBHOOK_SECRET  # shared with the (simulated) carrier; signs request bodies
     anthropic_api_key: str | None = None
     anthropic_model: str | None = None
+    # Optional second opinion on contract terms from any OpenAI-compatible chat API, such as a free-tier provider.
+    check_llm_base_url: str | None = None  # for example https://api.groq.com/openai/v1
+    check_llm_api_key: str | None = None
+    check_llm_model: str | None = None
     cors_origins: str = "http://localhost:3000"
 
     @property

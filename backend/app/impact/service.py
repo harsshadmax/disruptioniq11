@@ -5,6 +5,8 @@ from datetime import date, datetime
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.contracts.rules import max_penalty
+from app.contracts.store import confirmed_terms
 from app.detect.rules import OPEN_STATUSES
 from app.impact.allocation import Allocation, Demand, Supply, allocate, newly_at_risk
 from app.models import (
@@ -92,12 +94,16 @@ def load_world(db: Session, only: Cell | None = None) -> dict[Cell, CellWorld]:
         totals_q = totals_q.where(OrderLine.order_id.in_(lines_in_cell))
     totals = dict(db.execute(totals_q).all())
     rows = db.execute(lines_q).all()
+    contracts = confirmed_terms(db)
     for line, order, cust in rows:
         open_qty = line.qty - line.qty_allocated
         if open_qty > 0:
+            penalty = float(order.sla_penalty)
+            if cust.id in contracts:  # a confirmed contract replaces the order's own penalty
+                penalty, _ = max_penalty(contracts[cust.id], float(order.value), penalty)
             cell(line.warehouse_id, line.sku_id).lines.append(LineInfo(
                 line.id, order.id, order.ref, cust.name, cust.tier, order.due_date, open_qty, int(totals[order.id]),
-                float(order.sla_penalty), float(order.value), cust.allows_partial))
+                penalty, float(order.value), cust.allows_partial))
 
     ships = db.execute(ships_q).all()
     for sl, sh, sup in ships:

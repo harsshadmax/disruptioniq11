@@ -35,6 +35,7 @@ These use data the app already has, so every number is real and explainable.
 | # | Feature | Why it matters | Status |
 |---|---|---|---|
 | 1 | **What-if simulation lab.** Pick a supplier shutdown, a shipment delay, a demand surge or a stock cut (several at once). See orders at risk, units short and penalty exposure, baseline against simulated. Writes nothing to real data. | Answers the jury's first question: "what if this supplier stops?" | Done |
+| 1c | **Contract terms.** Upload a customer contract (PDF), read penalty terms with rules, AI double-check, manager confirms, penalty exposure uses the contract. | Penalty figures come from the customer's own contract instead of a flat number on each order | In preview |
 | 1b | Save, reopen and delete simulations; compare recovery strategies inside a simulation | Makes the lab reusable. Needs one new table and migration. | Planned |
 | 2 | **Incident replay.** Step through one disruption: detected, plans generated, proposed, approved, executed, with who and when. Built from the existing audit log. | Shows the full story in one screen | Planned |
 | 3 | **Resilience scorecard.** A 0 to 100 score from documented rules: supplier dependency, stock cover, supplier reliability, recovery rate. Per-category scores and tips. | One number a manager can track, fully explainable | Planned |

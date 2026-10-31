@@ -42,3 +42,9 @@ services:
         sync: false              # optional; without it the AI layer answers from templates
       - key: ANTHROPIC_MODEL
         sync: false
+      - key: CHECK_LLM_BASE_URL
+        sync: false              # optional; OpenAI-compatible API used to double-check contract terms
+      - key: CHECK_LLM_API_KEY
+        sync: false
+      - key: CHECK_LLM_MODEL
+        sync: false
